@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartInvest</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2efe9;--bg2:#ebe7de;--sur:#faf8f4;
+  --gold:#b8963e;--gold2:#d4af6a;--glow:rgba(184,150,62,0.12);
+  --dark:#18160f;--mid:#4e4840;--muted:#8c8479;
+  --green:#2d6245;--red:#8a3a3a;
+  --bdr:rgba(184,150,62,0.2);
+  --sh:0 4px 24px rgba(18,16,10,0.08);--sh2:0 12px 48px rgba(18,16,10,0.14);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--dark);min-height:100vh;overflow-x:hidden;}
+
+/* ─── PAGES ─── */
+.page{display:none;min-height:100vh;position:relative;z-index:1;}
+.page.on{display:block;animation:fadeUp .4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── AUTH GATE ─── */
+#gate{display:flex;min-height:100vh;}
+#gate.hide{display:none;}
+.gate-left{
+  width:48%;background:var(--dark);padding:60px 56px;
+  display:flex;flex-direction:column;justify-content:center;
+  position:relative;overflow:hidden;flex-shrink:0;
+}
+.gate-left::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 65% 65% at 25% 45%,rgba(184,150,62,0.14),transparent 68%);}
+.gate-left::after{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(0deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 60px),
+  repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0,rgba(255,255,255,.025) 1px,transparent 1px,transparent 60px);
+}
+.gate-right{flex:1;display:flex;align-items:center;justify-content:center;padding:40px;background:var(--bg);}
+.acard{background:var(--sur);border:1px solid var(--bdr);border-radius:18px;padding:40px 44px;width:100%;max-width:430px;box-shadow:var(--sh2);}
+.acard-wide{max-width:470px;}
+.alogo{font-family:'Playfair Display',serif;font-size:1.15rem;font-weight:700;color:var(--dark);margin-bottom:26px;}
+.alogo span{color:var(--gold);}
+.atitle{font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:700;margin-bottom:7px;}
+.asub{color:var(--muted);font-size:.86rem;line-height:1.65;margin-bottom:26px;font-weight:300;}
+.afoot{text-align:center;font-size:.83rem;color:var(--muted);margin-top:16px;}
+.afoot a{color:var(--gold);cursor:pointer;font-weight:500;}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:60px;padding:0 38px;display:flex;align-items:center;justify-content:space-between;background:rgba(242,239,233,0.94);backdrop-filter:blur(16px);border-bottom:1px solid var(--bdr);}
+.nlogo{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;cursor:pointer;}
+.nlogo span{color:var(--gold);}
+.nlinks{display:flex;gap:22px;align-items:center;}
+.nlinks a{font-size:.79rem;font-weight:500;color:var(--mid);cursor:pointer;transition:color .2s;white-space:nowrap;letter-spacing:.01em;}
+.nlinks a:hover{color:var(--gold);}
+.nright{display:flex;gap:9px;align-items:center;}
+.nav-av{width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.78rem;color:#fff;flex-shrink:0;}
+
+/* ─── BUTTONS ─── */
+.btn-g{padding:7px 15px;border-radius:6px;border:1.5px solid var(--gold);color:var(--gold);background:transparent;font-family:'DM Sans',sans-serif;font-size:.79rem;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-g:hover{background:var(--gold);color:#fff;}
+.btn-p{padding:12px 24px;border-radius:8px;background:var(--dark);color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:600;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:6px;}
+.btn-p:hover{background:var(--gold);transform:translateY(-2px);box-shadow:0 6px 20px rgba(184,150,62,.35);}
+.btn-o{padding:12px 24px;border-radius:8px;background:transparent;color:var(--dark);border:1.5px solid rgba(18,16,10,.22);font-family:'DM Sans',sans-serif;font-size:.88rem;font-weight:500;cursor:pointer;transition:all .25s;}
+.btn-o:hover{border-color:var(--gold);color:var(--gold);}
+.btn-f{width:100%;padding:12px;border-radius:8px;background:var(--dark);color:#fff;border:none;font-family:'DM Sans',sans-serif;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s;margin-bottom:13px;}
+.btn-f:hover{background:var(--gold);box-shadow:0 6px 18px rgba(184,150,62,.3);}
+
+/* ─── FORMS ─── */
+.fg{margin-bottom:15px;}
+.fl{display:block;font-size:.71rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--mid);margin-bottom:6px;}
+.fi{width:100%;padding:11px 13px;border-radius:7px;border:1.5px solid rgba(184,150,62,.18);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--dark);outline:none;transition:border-color .2s;}
+.fi:focus{border-color:var(--gold);background:var(--sur);}
+.fi::placeholder{color:var(--muted);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fsel{appearance:none;background:var(--bg);border:1.5px solid rgba(184,150,62,.18);border-radius:7px;padding:11px 32px 11px 13px;font-family:'DM Sans',sans-serif;font-size:.87rem;color:var(--dark);cursor:pointer;outline:none;width:100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238c8479' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center;transition:border-color .2s;}
+.fsel:focus{border-color:var(--gold);}
+.fchk{display:flex;align-items:flex-start;gap:7px;font-size:.82rem;color:var(--muted);cursor:pointer;line-height:1.5;}
+.flink{color:var(--gold);cursor:pointer;font-weight:500;}
+.fopts{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.sbar{display:flex;gap:4px;margin-top:6px;}
+.sseg{flex:1;height:3px;border-radius:2px;background:var(--bg2);transition:background .3s;}
+
+/* ─── SECTION ─── */
+.sec{padding:84px 44px 56px;}
+.ptop{padding-top:106px;}
+.stag{font-size:.68rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:11px;}
+.stitle{font-family:'Playfair Display',serif;font-size:clamp(1.75rem,3vw,2.8rem);font-weight:700;letter-spacing:-.022em;margin-bottom:11px;line-height:1.1;}
+.ssub{color:var(--muted);font-size:.93rem;line-height:1.78;max-width:480px;margin-bottom:40px;font-weight:300;}
+
+/* ─── CARDS ─── */
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:24px;transition:all .28s;}
+.card:hover{transform:translateY(-3px);box-shadow:var(--sh2);}
+.fic{width:42px;height:42px;border-radius:11px;background:var(--glow);display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:14px;}
+.card h3{font-family:'Playfair Display',serif;font-size:1.1rem;margin-bottom:7px;}
+.card p{color:var(--muted);font-size:.83rem;line-height:1.7;font-weight:300;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+
+/* ─── ALLOC ROWS ─── */
+.ai-row{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid rgba(184,150,62,.08);}
+.ai-row:last-child{border-bottom:none;}
+.ai-n{font-weight:500;font-size:.83rem;min-width:118px;}
+.ai-b{flex:1;height:3px;background:var(--bg2);border-radius:2px;margin:0 12px;}
+.ai-f{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+.ai-p{font-weight:700;font-size:.83rem;color:var(--gold);min-width:32px;text-align:right;}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;padding:0 44px;display:flex;align-items:center;position:relative;overflow:hidden;}
+.hglow{position:absolute;inset:0;background:radial-gradient(ellipse 68% 65% at 66% 50%,rgba(184,150,62,.08),transparent 70%),radial-gradient(ellipse 42% 50% at 14% 78%,rgba(45,98,69,.05),transparent 65%);}
+.hgrid{position:absolute;inset:0;opacity:.04;background-image:linear-gradient(var(--dark) 1px,transparent 1px),linear-gradient(90deg,var(--dark) 1px,transparent 1px);background-size:58px 58px;}
+.hcontent{max-width:570px;position:relative;z-index:2;padding-top:76px;}
+.htag{display:inline-flex;align-items:center;gap:7px;background:var(--glow);border:1px solid var(--bdr);padding:5px 12px;border-radius:20px;font-size:.68rem;font-weight:600;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;}
+.htag-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,5.2vw,4.2rem);line-height:1.04;font-weight:900;letter-spacing:-.028em;margin-bottom:18px;}
+h1 em{font-style:italic;color:var(--gold);}
+.hsub{font-size:.96rem;color:var(--muted);line-height:1.78;margin-bottom:30px;font-weight:300;max-width:445px;}
+.hbtns{display:flex;gap:11px;flex-wrap:wrap;}
+.hstats{position:absolute;right:46px;top:50%;transform:translateY(-50%);z-index:2;padding-top:76px;display:flex;flex-direction:column;gap:12px;}
+.sc{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:15px 18px;min-width:158px;box-shadow:var(--sh);}
+.sc:nth-child(1){animation:fl 4s ease-in-out infinite;}
+.sc:nth-child(2){animation:fl 4s ease-in-out 1.4s infinite;}
+.sc:nth-child(3){animation:fl 4s ease-in-out 2.8s infinite;}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.slbl{font-size:.63rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.sval{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:700;}
+.schi{font-size:.74rem;font-weight:600;margin-top:2px;}
+.up{color:#2e8a51;}.dn{color:var(--red);}
+
+/* ─── TICKER ─── */
+.ticker{background:var(--dark);padding:8px 0;overflow:hidden;font-size:.73rem;letter-spacing:.05em;}
+.tin{display:flex;gap:50px;animation:tk 24s linear infinite;white-space:nowrap;color:rgba(255,255,255,.6);}
+.tin .ts{color:var(--gold2);font-weight:600;}
+.tin .tu{color:#5cb85c;font-weight:600;}
+.tin .td2{color:#e06c6c;font-weight:600;}
+@keyframes tk{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ─── DASHBOARD ─── */
+.pgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.pcard{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:18px;transition:box-shadow .2s;}
+.pcard:hover{box-shadow:var(--sh);}
+.plbl{font-size:.67rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.pval{font-family:'Playfair Display',serif;font-size:1.65rem;font-weight:700;}
+.pchi{font-size:.75rem;font-weight:600;margin-top:3px;}
+.cbox{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:22px;margin-bottom:22px;}
+.arow{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.acard{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:20px;}
+
+/* ─── MARKET TABLE ─── */
+.mtbl{width:100%;border-collapse:collapse;margin-top:20px;}
+.mtbl thead tr{border-bottom:2px solid var(--bdr);}
+.mtbl th{text-align:left;padding:10px 12px;font-size:.65rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.mtbl tbody tr{border-bottom:1px solid rgba(184,150,62,.1);transition:background .15s;}
+.mtbl tbody tr:hover{background:rgba(184,150,62,.04);}
+.mtbl td{padding:12px 12px;font-size:.85rem;}
+.sym{font-weight:700;font-family:'Playfair Display',serif;font-size:.94rem;}
+.sbadge{font-size:.67rem;font-weight:700;padding:3px 9px;border-radius:20px;}
+
+/* ─── INVEST CARDS ─── */
+.igrid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.ic{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:26px;position:relative;overflow:hidden;transition:all .28s;}
+.ic::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:opacity .3s;}
+.ic:hover{transform:translateY(-3px);box-shadow:var(--sh2);}
+.ic:hover::after{opacity:1;}
+.ibadge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.66rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.blow{background:rgba(45,98,69,.1);color:var(--green);}
+.bmed{background:rgba(184,150,62,.14);color:var(--gold);}
+.bhigh{background:rgba(138,58,58,.1);color:var(--red);}
+.ic h3{font-family:'Playfair Display',serif;font-size:1.3rem;margin-bottom:6px;}
+.ic p{color:var(--muted);font-size:.83rem;line-height:1.7;margin-bottom:14px;font-weight:300;}
+.rn{font-family:'Playfair Display',serif;font-size:1.85rem;font-weight:700;color:var(--green);}
+.rdots{display:flex;gap:4px;margin-top:12px;}
+.rdot{width:9px;height:9px;border-radius:50%;background:var(--bg2);}
+.rdot.on{background:var(--gold);}
+.ib{height:3px;background:var(--bg2);border-radius:2px;margin-top:12px;}
+.ibf{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));}
+
+/* ─── ANALYSIS TABS ─── */
+.tabbar{display:flex;background:var(--bg2);border-radius:9px;padding:3px;width:fit-content;margin-bottom:32px;gap:2px;flex-wrap:wrap;}
+.tbtn{padding:9px 20px;background:transparent;color:var(--mid);border:none;font-family:'DM Sans',sans-serif;font-weight:500;font-size:.79rem;cursor:pointer;transition:all .2s;white-space:nowrap;border-radius:7px;letter-spacing:.01em;}
+.tbtn.on{background:var(--sur);color:var(--dark);box-shadow:0 1px 6px rgba(0,0,0,.07);font-weight:600;}
+.tc{display:none;}
+.tc.on{display:block;animation:fadeUp .3s ease;}
+
+/* ─── RATIO CARDS ─── */
+.rcrd{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:20px;transition:box-shadow .25s;}
+.rcrd:hover{box-shadow:var(--sh);}
+.rcrd h3{font-family:'Playfair Display',serif;font-size:1.08rem;margin-bottom:5px;}
+.rcrd p{color:var(--muted);font-size:.81rem;line-height:1.68;font-weight:300;}
+.rfm{font-size:.67rem;font-weight:600;color:var(--gold);background:var(--glow);padding:3px 8px;border-radius:7px;display:inline-block;margin:5px 0 8px;font-family:monospace;letter-spacing:.02em;}
+.rbench{font-size:.72rem;color:var(--green);font-weight:600;margin-top:6px;}
+
+/* ─── COMPARE TABLE ─── */
+.ctbl{width:100%;border-collapse:collapse;margin-bottom:26px;}
+.ctbl thead tr{background:var(--dark);}
+.ctbl th{padding:13px 15px;text-align:left;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;}
+.ctbl th:first-child{color:rgba(255,255,255,.55);border-radius:8px 0 0 0;}
+.ctbl th:nth-child(2){color:var(--gold2);}
+.ctbl th:nth-child(3){color:var(--gold2);border-radius:0 8px 0 0;}
+.ctbl td{padding:12px 15px;font-size:.84rem;}
+.ctbl tr:nth-child(odd) td{background:var(--sur);}
+.ctbl tr:nth-child(even) td{background:var(--bg);}
+.ctbl td:not(:first-child){color:var(--muted);}
+.ctbl td:first-child{font-weight:600;}
+.ctbl tr:not(:last-child) td{border-bottom:1px solid rgba(184,150,62,.1);}
+
+/* ─── CALCULATORS ─── */
+.ccrd{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:26px;}
+.cres{background:var(--bg);border-radius:10px;padding:14px;margin-top:12px;}
+.cresg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center;}
+.clbl{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.cval{font-family:'Playfair Display',serif;font-size:1.08rem;font-weight:700;}
+
+/* ─── QUIZ ─── */
+.qopt{text-align:left;padding:11px 15px;border-radius:8px;border:1.5px solid var(--bdr);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:.84rem;cursor:pointer;transition:all .2s;color:var(--dark);width:100%;margin-bottom:8px;display:block;}
+.qopt:hover:not(:disabled){border-color:var(--gold);}
+.qopt.correct{background:rgba(45,98,69,.09);border-color:var(--green);color:var(--green);}
+.qopt.wrong{background:rgba(192,57,43,.07);border-color:#c0392b;color:#c0392b;}
+.qopt:disabled{cursor:default;}
+.qpbar{height:3px;background:var(--bg2);border-radius:2px;margin-bottom:24px;}
+.qpfill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .4s ease;}
+.qfb{margin-top:15px;padding:13px 15px;border-radius:9px;font-size:.84rem;line-height:1.65;border-left:3px solid;}
+
+/* ─── AI CHAT FULL PAGE ─── */
+.chatpage{display:flex;flex-direction:column;height:100vh;padding-top:60px;}
+.chat-topbar{background:var(--dark);padding:18px 44px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.chat-bot-av{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold2));display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;box-shadow:0 0 0 3px rgba(184,150,62,.25);}
+.chat-bot-name{font-family:'Playfair Display',serif;color:#fff;font-size:1.18rem;font-weight:700;}
+.chat-bot-status{color:rgba(255,255,255,.45);font-size:.72rem;display:flex;align-items:center;gap:5px;margin-top:2px;}
+.chat-bot-status::before{content:'';width:6px;height:6px;border-radius:50%;background:#5cb85c;flex-shrink:0;animation:blink 2s infinite;}
+.chat-body{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.chat-scroll{flex:1;overflow-y:auto;padding:0;}
+.chat-scroll::-webkit-scrollbar{width:4px;}
+.chat-scroll::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px;}
+.chat-center{max-width:800px;margin:0 auto;width:100%;padding:24px 28px;}
+
+/* Welcome state */
+.cwelcome{text-align:center;padding:28px 0 20px;}
+.cwelcome .cw-icon{font-size:2.8rem;margin-bottom:12px;}
+.cwelcome h2{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:8px;}
+.cwelcome p{color:var(--muted);font-size:.88rem;line-height:1.72;max-width:400px;margin:0 auto;font-weight:300;}
+.ctopics{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-top:22px;}
+.ctopic{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:15px 12px;cursor:pointer;transition:all .22s;text-align:center;}
+.ctopic:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:var(--sh);}
+.ctopic .ti{font-size:1.5rem;margin-bottom:7px;}
+.ctopic .tn{font-size:.78rem;font-weight:600;color:var(--dark);margin-bottom:2px;}
+.ctopic .td{font-size:.72rem;color:var(--muted);}
+.cdivider{text-align:center;color:var(--muted);font-size:.73rem;letter-spacing:.08em;text-transform:uppercase;padding:14px 0 8px;border-top:1px solid var(--bdr);margin:4px 0 0;}
+
+/* Messages */
+.msgs-wrap{max-width:800px;margin:0 auto;width:100%;padding:8px 28px 16px;display:flex;flex-direction:column;gap:14px;}
+.cmsg{display:flex;gap:10px;align-items:flex-end;}
+.cmsg.user{flex-direction:row-reverse;}
+.cbubl{max-width:76%;padding:11px 16px;border-radius:14px;font-size:.87rem;line-height:1.65;}
+.cmsg.bot .cbubl{background:var(--sur);border:1px solid var(--bdr);color:var(--dark);border-radius:4px 14px 14px 14px;}
+.cmsg.user .cbubl{background:var(--dark);color:#fff;border-radius:14px 4px 14px 14px;}
+.cico{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.cico.bot{background:linear-gradient(135deg,var(--gold),var(--gold2));font-size:.88rem;}
+.cico.usr{background:var(--dark);border:1px solid var(--bdr);font-size:.72rem;font-weight:700;color:var(--gold);}
+.typing-ind{display:flex;gap:5px;padding:10px 14px;background:var(--sur);border:1px solid var(--bdr);border-radius:4px 14px 14px 14px;width:fit-content;}
+.tdot{width:5px;height:5px;border-radius:50%;background:var(--muted);animation:td 1.2s infinite;}
+.tdot:nth-child(2){animation-delay:.2s;}.tdot:nth-child(3){animation-delay:.4s;}
+@keyframes td{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* Chat input */
+.chat-bottom{background:var(--sur);border-top:1px solid var(--bdr);padding:14px 28px 18px;flex-shrink:0;}
+.chat-bottom-inner{max-width:800px;margin:0 auto;display:flex;gap:10px;align-items:center;}
+.chat-inp{flex:1;padding:12px 18px;border-radius:24px;border:1.5px solid var(--bdr);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:.88rem;color:var(--dark);outline:none;transition:border-color .2s;}
+.chat-inp:focus{border-color:var(--gold);}
+.chat-send{width:42px;height:42px;border-radius:50%;background:var(--dark);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s;}
+.chat-send:hover{background:var(--gold);}
+.chat-send svg{width:15px;height:15px;}
+.chat-note{text-align:center;font-size:.69rem;color:var(--muted);margin-top:8px;letter-spacing:.01em;}
+
+/* ─── FOOTER ─── */
+footer{background:var(--dark);color:rgba(255,255,255,.45);padding:50px 44px 24px;}
+.fgrid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px;margin-bottom:36px;}
+.fbrand{font-family:'Playfair Display',serif;font-size:1.18rem;color:#fff;font-weight:700;margin-bottom:8px;}
+.fbrand span{color:var(--gold);}
+.fcol h4{color:rgba(255,255,255,.7);font-size:.67rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:12px;}
+.fcol a{display:block;font-size:.81rem;margin-bottom:7px;cursor:pointer;transition:color .2s;}
+.fcol a:hover{color:var(--gold2);}
+.fbot{border-top:1px solid rgba(255,255,255,.08);padding-top:18px;display:flex;justify-content:space-between;font-size:.74rem;flex-wrap:wrap;gap:8px;}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(60px);z-index:9999;background:var(--dark);color:#fff;padding:12px 22px;border-radius:9px;border-left:3px solid var(--gold);font-size:.84rem;font-weight:500;box-shadow:var(--sh2);opacity:0;transition:all .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+@media(max-width:900px){
+  nav{padding:0 14px;}.nlinks{gap:12px;}
+  .hero,.sec{padding-left:16px;padding-right:16px;}.hstats{display:none;}
+  .g3,.g2,.igrid,.arow,.pgrid,.fgrid,.ctopics{grid-template-columns:1fr;}
+  .pgrid{grid-template-columns:1fr 1fr;}
+  .gate-left{display:none;}.gate-right{padding:20px;}
+  .acard{padding:28px 22px;}
+  .chat-topbar,.chat-bottom{padding-left:16px;padding-right:16px;}
+  .chat-center,.msgs-wrap{padding-left:14px;padding-right:14px;}
+  .ctopics{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- ████████ AUTH GATE ████████ -->
+<div id="gate">
+  <div class="gate-left">
+    <div style="position:relative;z-index:2;">
+      <div style="font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:#fff;margin-bottom:40px;">Smart<span style="color:var(--gold);">Invest</span></div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.9rem,3.2vw,3rem);color:#fff;font-weight:900;line-height:1.06;margin-bottom:16px;">Invest smarter.<br><em style="color:var(--gold2);font-style:italic;">Not harder.</em></h2>
+      <p style="color:rgba(255,255,255,.52);font-size:.93rem;line-height:1.8;max-width:370px;font-weight:300;margin-bottom:38px;">Join 120,000+ investors using AI-powered analysis to make smarter financial decisions every day.</p>
+      <div style="display:flex;flex-direction:column;gap:13px;">
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:8px;background:rgba(184,150,62,.16);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🧠</div><span style="color:rgba(255,255,255,.72);font-size:.87rem;">AI-powered investment signals &amp; real-time analysis</span></div>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:8px;background:rgba(184,150,62,.16);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">📊</div><span style="color:rgba(255,255,255,.72);font-size:.87rem;">Live market data &amp; portfolio performance tracking</span></div>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:8px;background:rgba(184,150,62,.16);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🤖</div><span style="color:rgba(255,255,255,.72);font-size:.87rem;">Personal AI financial advisor available 24/7</span></div>
+        <div style="display:flex;align-items:center;gap:11px;"><div style="width:34px;height:34px;border-radius:8px;background:rgba(184,150,62,.16);display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;">🎓</div><span style="color:rgba(255,255,255,.72);font-size:.87rem;">Finance quizzes, calculators &amp; learning tools</span></div>
+      </div>
+      <div style="margin-top:44px;padding-top:22px;border-top:1px solid rgba(255,255,255,.1);font-size:.71rem;color:rgba(255,255,255,.28);">Investments involve risk. Past performance is not indicative of future results.</div>
+    </div>
+  </div>
+  <div class="gate-right">
+    <!-- LOGIN -->
+    <div id="loginCard" class="acard">
+      <div class="alogo">Smart<span>Invest</span></div>
+      <h2 class="atitle">Welcome back</h2>
+      <p class="asub">Sign in to access your portfolio, live markets, and AI advisor.</p>
+      <div class="fg"><label class="fl">Your Name</label><input type="text" class="fi" id="lName" placeholder="e.g. Arjun Sharma"></div>
+      <div class="fg"><label class="fl">Email Address</label><input type="email" class="fi" id="lEmail" placeholder="you@example.com"></div>
+      <div class="fg"><label class="fl">Password</label><input type="password" class="fi" id="lPwd" placeholder="••••••••"></div>
+      <div class="fopts">
+        <label class="fchk" style="font-size:.8rem;"><input type="checkbox" style="margin-right:5px;"> Remember me</label>
+        <span class="flink" style="font-size:.8rem;" onclick="toggleAuth('forgot')">Forgot password?</span>
+      </div>
+      <button class="btn-f" onclick="doLogin()">Sign In to SmartInvest</button>
+      <div class="afoot">No account yet? <a onclick="toggleAuth('reg')">Create one free →</a></div>
+    </div>
+    <!-- REGISTER -->
+    <div id="regCard" class="acard acard-wide" style="display:none;">
+      <div class="alogo">Smart<span>Invest</span></div>
+      <h2 class="atitle">Create account</h2>
+      <p class="asub">Start your investing journey today — 100% free, no credit card needed.</p>
+      <div class="frow">
+        <div class="fg"><label class="fl">First Name</label><input type="text" class="fi" id="rFirst" placeholder="Jane"></div>
+        <div class="fg"><label class="fl">Last Name</label><input type="text" class="fi" id="rLast" placeholder="Smith"></div>
+      </div>
+      <div class="fg"><label class="fl">Email Address</label><input type="email" class="fi" id="rEmail" placeholder="jane@example.com"></div>
+      <div class="fg">
+        <label class="fl">Password</label>
+        <input type="password" class="fi" id="rPwd" placeholder="Min. 8 characters" oninput="checkStr(this.value)">
+        <div class="sbar"><div class="sseg" id="s1"></div><div class="sseg" id="s2"></div><div class="sseg" id="s3"></div><div class="sseg" id="s4"></div></div>
+        <div id="strTxt" style="font-size:.69rem;color:var(--muted);margin-top:4px;">Enter a password</div>
+      </div>
+      <div class="fg"><label class="fl">Investment Goal</label>
+        <select class="fsel" id="rGoal">
+          <option>Long-term wealth building</option><option>Retirement planning</option>
+          <option>Short-term trading</option><option>Passive income</option><option>Just learning</option>
+        </select>
+      </div>
+      <div style="margin-bottom:18px;"><label class="fchk"><input type="checkbox" id="rAgree" style="margin-right:6px;"> I agree to the <span class="flink">Terms of Service</span> and <span class="flink">Privacy Policy</span></label></div>
+      <button class="btn-f" onclick="doRegister()">Create Free Account</button>
+      <div class="afoot">Already have an account? <a onclick="toggleAuth('login')">Sign in →</a></div>
+    </div>
+    <!-- FORGOT PASSWORD -->
+    <div id="forgotCard" class="acard" style="display:none;">
+      <div class="alogo">Smart<span>Invest</span></div>
+      <!-- Step 1: Email lookup -->
+      <div id="fStep1">
+        <h2 class="atitle">Forgot Password?</h2>
+        <p class="asub">Enter your registered email address to reset your password.</p>
+        <div class="fg"><label class="fl">Email Address</label><input type="email" class="fi" id="fEmail" placeholder="you@example.com"></div>
+        <div id="fError" style="display:none;margin-bottom:14px;padding:11px 14px;border-radius:8px;background:rgba(138,58,58,0.08);border-left:3px solid var(--red);font-size:.83rem;color:var(--red);"></div>
+        <button class="btn-f" onclick="doForgot()">Continue</button>
+        <div class="afoot"><a onclick="toggleAuth('login')">← Back to Sign In</a></div>
+      </div>
+      <!-- Step 2: New password -->
+      <div id="fStep2" style="display:none;">
+        <h2 class="atitle">Create New Password</h2>
+        <p class="asub" id="fGreet"></p>
+        <div class="fg"><label class="fl">New Password</label><input type="password" class="fi" id="fNewPwd" placeholder="Min. 8 characters" oninput="checkFStr(this.value)">
+          <div class="sbar"><div class="sseg" id="fs1"></div><div class="sseg" id="fs2"></div><div class="sseg" id="fs3"></div><div class="sseg" id="fs4"></div></div>
+          <div id="fStrTxt" style="font-size:.69rem;color:var(--muted);margin-top:4px;">Enter a password</div>
+        </div>
+        <div class="fg"><label class="fl">Confirm Password</label><input type="password" class="fi" id="fConfPwd" placeholder="Re-enter your password"></div>
+        <div id="fPwdError" style="display:none;margin-bottom:14px;padding:11px 14px;border-radius:8px;background:rgba(138,58,58,0.08);border-left:3px solid var(--red);font-size:.83rem;color:var(--red);"></div>
+        <button class="btn-f" onclick="doResetPwd()">Save New Password</button>
+        <div class="afoot"><a onclick="toggleAuth('login')">← Back to Sign In</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ████████ MAIN APP ████████ -->
+<div id="app" style="display:none;">
+
+  <nav>
+    <div class="nlogo" onclick="go('home')">Smart<span>Invest</span></div>
+    <div class="nlinks">
+      <a onclick="go('home')">Home</a>
+      <a onclick="go('invest')">Invest</a>
+      <a onclick="go('markets')">Markets</a>
+      <a onclick="go('analysis')">Analysis</a>
+      <a onclick="go('calc')">Calculator</a>
+      <a onclick="go('quiz')">Quiz</a>
+      <a onclick="go('aichat')" style="color:var(--gold);font-weight:600;">AI Advisor</a>
+      <a onclick="go('dash')">Dashboard</a>
+    </div>
+    <div class="nright">
+      <div class="nav-av" id="navAv">A</div>
+      <span id="navNm" style="font-size:.82rem;font-weight:500;color:var(--dark);"></span>
+      <button class="btn-g" onclick="doLogout()">Logout</button>
+    </div>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- ═══ HOME ═══ -->
+  <div class="page on" id="p-home">
+    <div class="hero">
+      <div class="hglow"></div><div class="hgrid"></div>
+      <div class="hcontent">
+        <div class="htag"><div class="htag-dot"></div>AI-Powered Financial Platform</div>
+        <h1>Invest with <em>Precision</em><br>&amp; Confidence</h1>
+        <p class="hsub">SmartInvest combines live market data with AI-driven analysis to guide your investment decisions — from beginners to seasoned traders.</p>
+        <div class="hbtns">
+          <button class="btn-p" onclick="go('dash')">My Dashboard →</button>
+          <button class="btn-o" onclick="go('markets')">Explore Markets</button>
+        </div>
+      </div>
+      <div class="hstats">
+        <div class="sc"><div class="slbl">S&amp;P 500</div><div class="sval">5,842</div><div class="schi up">↑ +1.24%</div></div>
+        <div class="sc"><div class="slbl">NASDAQ</div><div class="sval">18,290</div><div class="schi up">↑ +0.87%</div></div>
+        <div class="sc"><div class="slbl">GOLD/oz</div><div class="sval">$2,941</div><div class="schi dn">↓ −0.31%</div></div>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;" class="ticker"><div class="tin" id="tickerEl"></div></div>
+    </div>
+
+    <div style="background:var(--dark);padding:66px 44px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse 55% 80% at 50% 50%,rgba(184,150,62,.1),transparent);pointer-events:none;"></div>
+      <p class="stag" style="position:relative;z-index:1;">Limited Time</p>
+      <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.65rem,3vw,2.7rem);color:#fff;margin-bottom:12px;letter-spacing:-.02em;position:relative;z-index:1;">30-day free trial — no card needed</h2>
+      <p style="color:rgba(255,255,255,.48);font-size:.93rem;margin-bottom:28px;font-weight:300;position:relative;z-index:1;">Join 120,000+ investors already using SmartInvest.</p>
+      <button class="btn-p" onclick="go('aichat')" style="position:relative;z-index:1;font-size:.95rem;padding:14px 30px;">Talk to AI Advisor →</button>
+    </div>
+
+    <footer>
+      <div class="fgrid">
+        <div><div class="fbrand">Smart<span>Invest</span></div><p style="font-size:.81rem;line-height:1.7;max-width:225px;">Intelligent financial analysis platform trusted by over 120,000 investors worldwide.</p></div>
+        <div class="fcol"><h4>Platform</h4><a onclick="go('invest')">Invest</a><a onclick="go('markets')">Markets</a><a onclick="go('analysis')">Analysis</a><a onclick="go('calc')">Calculator</a></div>
+        <div class="fcol"><h4>Learn</h4><a onclick="go('quiz')">Finance Quiz</a><a onclick="go('aichat')">AI Advisor</a><a>Blog</a><a>Glossary</a></div>
+        <div class="fcol"><h4>Legal</h4><a>Privacy</a><a>Terms</a><a>Security</a><a>Cookies</a></div>
+      </div>
+      <div class="fbot"><span>© 2026 SmartInvest. All rights reserved.</span><span>Investments involve risk. Past performance is not indicative of future results.</span></div>
+    </footer>
+  </div>
+
+  <!-- ═══ INVEST ═══ -->
+  <div class="page" id="p-invest">
+    <div class="sec ptop">
+      <p class="stag">Investment Opportunities</p>
+      <h2 class="stitle">Where to Put Your Money</h2>
+      <p class="ssub">AI-ranked opportunities by risk-adjusted returns, macro conditions, and momentum signals.</p>
+      <div style="margin-bottom:28px;"><select class="fsel" id="riskF" onchange="filterInvest()" style="width:auto;min-width:190px;"><option value="all">All Risk Levels</option><option value="low">Low Risk</option><option value="med">Medium Risk</option><option value="high">High Risk</option></select></div>
+      <div class="igrid" id="investGrid">
+        <div class="ic" data-risk="low"><span class="ibadge blow">🟢 Low Risk</span><h3>US Treasury Bonds</h3><p>Government-backed securities offering stable, predictable income. The ideal defensive anchor in volatile markets.</p><div><span class="rn">4.8%</span> <span style="font-size:.76rem;color:var(--muted)">avg. annual yield</span></div><div class="rdots"><div class="rdot on"></div><div class="rdot on"></div><div class="rdot"></div><div class="rdot"></div><div class="rdot"></div></div><div class="ib"><div class="ibf" style="width:30%"></div></div></div>
+        <div class="ic" data-risk="low"><span class="ibadge blow">🟢 Low Risk</span><h3>S&amp;P 500 Index Funds</h3><p>Diversification across 500 top US companies. The gold standard for passive long-term wealth building over decades.</p><div><span class="rn">10.3%</span> <span style="font-size:.76rem;color:var(--muted)">10-yr avg. return</span></div><div class="rdots"><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot"></div><div class="rdot"></div></div><div class="ib"><div class="ibf" style="width:46%"></div></div></div>
+        <div class="ic" data-risk="med"><span class="ibadge bmed">🟡 Medium Risk</span><h3>REITs — Real Estate</h3><p>Income-generating real estate without direct ownership. High dividend yields with built-in inflation protection.</p><div><span class="rn" style="color:var(--gold)">8.1%</span> <span style="font-size:.76rem;color:var(--muted)">avg. dividend yield</span></div><div class="rdots"><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot"></div></div><div class="ib"><div class="ibf" style="width:60%"></div></div></div>
+        <div class="ic" data-risk="med"><span class="ibadge bmed">🟡 Medium Risk</span><h3>Tech Growth ETFs</h3><p>Concentrated exposure to AI, semiconductors, and cloud computing — driving forces of the next decade's growth.</p><div><span class="rn" style="color:var(--gold)">18.6%</span> <span style="font-size:.76rem;color:var(--muted)">3-yr avg. return</span></div><div class="rdots"><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot"></div></div><div class="ib"><div class="ibf" style="width:68%"></div></div></div>
+        <div class="ic" data-risk="high"><span class="ibadge bhigh">🔴 High Risk</span><h3>Emerging Markets</h3><p>High-growth economies in Southeast Asia and Latin America offer outsized potential with elevated volatility.</p><div><span class="rn" style="color:var(--red)">24.2%</span> <span style="font-size:.76rem;color:var(--muted)">potential upside</span></div><div class="rdots"><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div></div><div class="ib"><div class="ibf" style="width:90%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div></div>
+        <div class="ic" data-risk="high"><span class="ibadge bhigh">🔴 High Risk</span><h3>Crypto — BTC &amp; ETH</h3><p>Revolutionary upside with extreme volatility. Best kept as a small speculative allocation of 5–10% maximum.</p><div><span class="rn" style="color:var(--red)">~150%</span> <span style="font-size:.76rem;color:var(--muted)">2-yr bull cycle avg</span></div><div class="rdots"><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div><div class="rdot on"></div></div><div class="ib"><div class="ibf" style="width:96%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div></div>
+      </div>
+    </div>
+    <div style="background:var(--dark);padding:28px 44px;text-align:center;"><p style="color:rgba(255,255,255,.38);font-size:.76rem;">All investments involve risk. SmartInvest does not provide financial advice.</p></div>
+  </div>
+
+  <!-- ═══ MARKETS ═══ -->
+  <div class="page" id="p-markets">
+    <div class="sec ptop">
+      <p class="stag">Live Market Data</p>
+      <h2 class="stitle">Market Overview</h2>
+      <p class="ssub">Real-time prices, AI signals, and sector performance across global asset classes.</p>
+      <table class="mtbl"><thead><tr><th>Symbol</th><th>Name</th><th>Price</th><th>Change</th><th>% Chg</th><th>Volume</th><th>Signal</th></tr></thead><tbody id="mktBody"></tbody></table>
+      <div style="margin-top:48px;"><h3 style="font-family:'Playfair Display',serif;font-size:1.28rem;margin-bottom:18px;">Sector Performance</h3><div id="secBars"></div></div>
+    </div>
+    <div style="background:var(--dark);padding:28px 44px;text-align:center;"><p style="color:rgba(255,255,255,.38);font-size:.76rem;">Data simulated for demonstration purposes.</p></div>
+  </div>
+
+  <!-- ═══ ANALYSIS ═══ -->
+  <div class="page" id="p-analysis">
+    <div class="sec ptop">
+      <p class="stag">Research Hub</p>
+      <h2 class="stitle">Investment Analysis</h2>
+      <p class="ssub">Four distinct frameworks — master all of them to invest with true conviction.</p>
+
+      <div class="tabbar">
+        <button class="tbtn on" id="tb-fund" onclick="switchTab('fund')">📊 Fundamental Analysis</button>
+        <button class="tbtn" id="tb-tech" onclick="switchTab('tech')">📈 Technical Analysis</button>
+        <button class="tbtn" id="tb-ratio" onclick="switchTab('ratio')">🔢 Key Financial Ratios</button>
+        <button class="tbtn" id="tb-comp" onclick="switchTab('comp')">⚖️ Side-by-Side Comparison</button>
+      </div>
+
+      <!-- ── FUNDAMENTAL ── -->
+      <div class="tc on" id="tc-fund">
+        <div class="g2" style="margin-bottom:28px;">
+          <div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.45rem;margin-bottom:11px;">What is Fundamental Analysis?</h3>
+            <p style="color:var(--muted);line-height:1.8;font-weight:300;font-size:.91rem;margin-bottom:10px;">Fundamental analysis evaluates a company's <strong style="color:var(--dark)">intrinsic value</strong> by examining its financial health, competitive position, management quality, and the macroeconomic environment. The core question: <em style="color:var(--dark)">Is this business worth more or less than what the market is pricing it at?</em></p>
+            <p style="color:var(--muted);line-height:1.8;font-weight:300;font-size:.91rem;">Preferred by legendary investors like Warren Buffett, Charlie Munger, and Peter Lynch — investors who think in decades, not days.</p>
+            <div style="background:var(--glow);border:1px solid var(--bdr);border-radius:10px;padding:16px;margin-top:18px;">
+              <p style="font-size:.78rem;font-weight:600;color:var(--gold);margin-bottom:5px;">BEST SUITED FOR</p>
+              <p style="font-size:.83rem;color:var(--mid);">Long-term investors (buy &amp; hold), value investors, retirement planners, and anyone who believes patient capital compounds over time.</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card" style="padding:20px;">
+              <h4 style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:12px;">📋 The 3 Core Financial Statements</h4>
+              <div class="ai-row"><span class="ai-n">Income Statement</span><span style="font-size:.79rem;color:var(--muted)">Revenue, costs, and profits over a period</span></div>
+              <div class="ai-row"><span class="ai-n">Balance Sheet</span><span style="font-size:.79rem;color:var(--muted)">Assets, liabilities, and shareholders' equity</span></div>
+              <div class="ai-row"><span class="ai-n">Cash Flow Statement</span><span style="font-size:.79rem;color:var(--muted)">Actual cash generated and spent by the business</span></div>
+            </div>
+            <div class="card" style="padding:20px;">
+              <h4 style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:12px;">🔍 Qualitative Factors to Evaluate</h4>
+              <div class="ai-row"><span class="ai-n">Management Quality</span><span style="font-size:.79rem;color:var(--muted)">Track record, integrity, vision, and execution</span></div>
+              <div class="ai-row"><span class="ai-n">Competitive Moat</span><span style="font-size:.79rem;color:var(--muted)">Brand, patents, switching costs, network effects</span></div>
+              <div class="ai-row"><span class="ai-n">Industry Position</span><span style="font-size:.79rem;color:var(--muted)">Market share, barriers to entry, disruption risk</span></div>
+              <div class="ai-row"><span class="ai-n">Growth Catalysts</span><span style="font-size:.79rem;color:var(--muted)">New products, markets, or regulatory tailwinds</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="card"><div class="fic">🏗️</div><h3>Top-Down Approach</h3><p>Start with the global economy → identify strong sectors → drill into specific companies. Think macro first, then filter down to the best names within winning industries.</p></div>
+          <div class="card"><div class="fic">🔬</div><h3>Bottom-Up Approach</h3><p>Start with individual companies regardless of macro conditions. Focus purely on business quality, management execution, and whether the price offers a margin of safety.</p></div>
+          <div class="card"><div class="fic">📐</div><h3>DCF Valuation Model</h3><p>Discounted Cash Flow estimates intrinsic value by projecting future cash flows over 5–10 years and discounting them to today's value using a required rate of return.</p></div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(45,98,69,.06),rgba(184,150,62,.05));border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-top:22px;">
+          <h4 style="font-family:'Playfair Display',serif;font-size:1.08rem;margin-bottom:14px;">📚 Buffett's 4 Core Investment Principles</h4>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1rem;flex-shrink:0;">1️⃣</span><span style="font-size:.84rem;color:var(--mid);">Invest only in businesses you fully understand — your "circle of competence"</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1rem;flex-shrink:0;">2️⃣</span><span style="font-size:.84rem;color:var(--mid);">Buy wonderful companies at fair prices, not fair companies at wonderful prices</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1rem;flex-shrink:0;">3️⃣</span><span style="font-size:.84rem;color:var(--mid);">Look for durable competitive advantages — moats that protect the business for decades</span></div>
+            <div style="display:flex;gap:10px;align-items:flex-start;"><span style="font-size:1rem;flex-shrink:0;">4️⃣</span><span style="font-size:.84rem;color:var(--mid);">Be fearful when others are greedy, and greedy when others are fearful</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TECHNICAL ── -->
+      <div class="tc" id="tc-tech">
+        <div class="g2" style="margin-bottom:28px;">
+          <div>
+            <h3 style="font-family:'Playfair Display',serif;font-size:1.45rem;margin-bottom:11px;">What is Technical Analysis?</h3>
+            <p style="color:var(--muted);line-height:1.8;font-weight:300;font-size:.91rem;margin-bottom:10px;">Technical analysis uses <strong style="color:var(--dark)">price charts, volume data, and mathematical indicators</strong> to identify patterns and forecast future price movements. It works on three core assumptions: the market discounts everything, prices move in trends, and history repeats itself.</p>
+            <p style="color:var(--muted);line-height:1.8;font-weight:300;font-size:.91rem;">Used extensively by day traders, swing traders, and institutional desks for precise timing of entries and exits across all liquid markets.</p>
+            <div style="background:var(--glow);border:1px solid var(--bdr);border-radius:10px;padding:16px;margin-top:18px;">
+              <p style="font-size:.78rem;font-weight:600;color:var(--gold);margin-bottom:5px;">BEST SUITED FOR</p>
+              <p style="font-size:.83rem;color:var(--mid);">Active traders seeking entry/exit timing. Works best in liquid, volatile markets. Short-to-medium time horizons from hours to months.</p>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="card" style="padding:20px;">
+              <h4 style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:12px;">📡 Trend-Following Indicators</h4>
+              <div class="ai-row"><span class="ai-n">SMA / EMA</span><span style="font-size:.79rem;color:var(--muted)">Smooth price data to identify trend direction</span></div>
+              <div class="ai-row"><span class="ai-n">MACD</span><span style="font-size:.79rem;color:var(--muted)">Momentum crossover signal for trend changes</span></div>
+              <div class="ai-row"><span class="ai-n">ADX</span><span style="font-size:.79rem;color:var(--muted)">Average Directional Index — measures trend strength</span></div>
+              <div class="ai-row"><span class="ai-n">Supertrend</span><span style="font-size:.79rem;color:var(--muted)">ATR-based dynamic buy/sell signal overlay</span></div>
+            </div>
+            <div class="card" style="padding:20px;">
+              <h4 style="font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:12px;">⚡ Momentum &amp; Oscillators</h4>
+              <div class="ai-row"><span class="ai-n">RSI</span><span style="font-size:.79rem;color:var(--muted)">Overbought (&gt;70) / Oversold (&lt;30) signals</span></div>
+              <div class="ai-row"><span class="ai-n">Stochastic</span><span style="font-size:.79rem;color:var(--muted)">Price position within a recent high-low range</span></div>
+              <div class="ai-row"><span class="ai-n">Bollinger Bands</span><span style="font-size:.79rem;color:var(--muted)">Volatility envelope — squeeze signals breakout</span></div>
+              <div class="ai-row"><span class="ai-n">Volume Profile</span><span style="font-size:.79rem;color:var(--muted)">Identifies high-activity price levels (POC)</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="g3">
+          <div class="card"><div class="fic">📉</div><h3>Chart Patterns</h3><p><strong style="color:var(--dark)">Reversal:</strong> Head &amp; Shoulders, Double Top/Bottom signal trend exhaustion.<br><strong style="color:var(--dark)">Continuation:</strong> Flags, Pennants, and Triangles confirm breakouts in the existing direction.</p></div>
+          <div class="card"><div class="fic">🕯️</div><h3>Candlestick Patterns</h3><p>Japanese candlesticks reveal real-time buyer-seller battles. Key patterns: <em>Doji</em> = indecision, <em>Hammer</em> = potential reversal, <em>Bullish Engulfing</em> = strong momentum shift upward.</p></div>
+          <div class="card"><div class="fic">🎯</div><h3>Support &amp; Resistance</h3><p>Price levels where buyers cluster (support) or sellers cluster (resistance). A decisive break above resistance or below support typically triggers a strong, sustained move in that direction.</p></div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(184,150,62,.07),rgba(45,98,69,.04));border:1px solid var(--bdr);border-radius:12px;padding:22px;margin-top:22px;">
+          <h4 style="font-family:'Playfair Display',serif;font-size:1.08rem;margin-bottom:16px;">📖 The 3 Core Assumptions of Technical Analysis</h4>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+            <div style="text-align:center;padding:16px;background:rgba(255,255,255,.55);border-radius:10px;"><div style="font-size:1.4rem;margin-bottom:8px;">🔮</div><strong style="font-size:.84rem;display:block;margin-bottom:5px;">Market Discounts Everything</strong><p style="font-size:.77rem;color:var(--muted);">All known information — earnings, news, events — is already reflected in the current price instantly.</p></div>
+            <div style="text-align:center;padding:16px;background:rgba(255,255,255,.55);border-radius:10px;"><div style="font-size:1.4rem;margin-bottom:8px;">📊</div><strong style="font-size:.84rem;display:block;margin-bottom:5px;">Prices Move in Trends</strong><p style="font-size:.77rem;color:var(--muted);">A price tends to continue in its direction until a significant force causes reversal. Always trade with the trend.</p></div>
+            <div style="text-align:center;padding:16px;background:rgba(255,255,255,.55);border-radius:10px;"><div style="font-size:1.4rem;margin-bottom:8px;">🔄</div><strong style="font-size:.84rem;display:block;margin-bottom:5px;">History Repeats Itself</strong><p style="font-size:.77rem;color:var(--muted);">Human psychology creates recurring patterns. Fear and greed are constant — so the same chart formations repeat.</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── KEY RATIOS (UNIQUE — different from fundamental tab) ── -->
+      <div class="tc" id="tc-ratio">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.42rem;margin-bottom:9px;">9 Financial Ratios Every Investor Must Know</h3>
+        <p style="color:var(--muted);font-size:.91rem;line-height:1.75;max-width:680px;font-weight:300;margin-bottom:28px;">These ratios are the language of fundamental analysis. Master them and you can evaluate any company's financial health at a glance — just like institutional fund managers.</p>
+
+        <!-- GROUP 1: VALUATION -->
+        <div style="margin-bottom:26px;">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><div style="width:3px;height:20px;background:var(--gold);border-radius:2px;"></div><h4 style="font-family:'Playfair Display',serif;font-size:1.1rem;">Valuation Ratios — Is the stock cheap or expensive?</h4></div>
+          <div class="g3">
+            <div class="rcrd"><div class="fic">📊</div><h3>P/E Ratio</h3><div class="rfm">Price ÷ Earnings Per Share</div><p>The most-watched ratio in markets. Tells you how many dollars investors pay for every $1 of profit. High P/E = expensive or high-growth expectations. Low P/E = cheap or low-growth company.</p><div class="rbench">✅ &lt;20 = fairly valued · &gt;30 = premium / growth stock</div></div>
+            <div class="rcrd"><div class="fic">📚</div><h3>P/B Ratio</h3><div class="rfm">Price ÷ Book Value Per Share</div><p>Compares market price to the company's net asset value on its books. Beloved by value investors — a P/B below 1.0 means you're buying assets for less than their stated worth on paper.</p><div class="rbench">✅ &lt;1.0 = potentially undervalued · 1–3 = fairly valued</div></div>
+            <div class="rcrd"><div class="fic">📉</div><h3>PEG Ratio</h3><div class="rfm">P/E Ratio ÷ EPS Growth Rate (%)</div><p>Adjusts P/E for the company's growth rate, giving a more complete valuation picture. A PEG of 1.0 is considered fair value. Below 1 may be undervalued for its growth; above 2 is expensive.</p><div class="rbench">✅ &lt;1.0 = undervalued for its growth · &gt;2.0 = overvalued</div></div>
+          </div>
+        </div>
+
+        <!-- GROUP 2: PROFITABILITY -->
+        <div style="margin-bottom:26px;">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><div style="width:3px;height:20px;background:var(--green);border-radius:2px;"></div><h4 style="font-family:'Playfair Display',serif;font-size:1.1rem;">Profitability Ratios — How efficiently does it earn?</h4></div>
+          <div class="g3">
+            <div class="rcrd"><div class="fic">💰</div><h3>Return on Equity (ROE)</h3><div class="rfm">Net Income ÷ Shareholders' Equity</div><p>Measures how much profit the company generates from money shareholders have invested. Consistently high ROE over 5+ years signals a strong competitive moat and skilled management team.</p><div class="rbench">✅ &gt;15% = strong · &gt;25% = exceptional compounder</div></div>
+            <div class="rcrd"><div class="fic">🏭</div><h3>Gross Profit Margin</h3><div class="rfm">(Revenue − COGS) ÷ Revenue × 100</div><p>Measures profitability before operating costs. High gross margins indicate pricing power — the ability to charge significantly more than it costs to deliver the product or service.</p><div class="rbench">✅ Software: &gt;70% · Manufacturing: &gt;30% · Retail: &gt;20%</div></div>
+            <div class="rcrd"><div class="fic">💧</div><h3>Free Cash Flow (FCF)</h3><div class="rfm">Operating Cash Flow − Capital Expenditure</div><p>The most honest financial metric — actual cash generated after running and maintaining the business. Unlike reported earnings, FCF cannot be manipulated by accounting choices or one-time items.</p><div class="rbench">✅ Consistently positive and growing YoY — gold standard</div></div>
+          </div>
+        </div>
+
+        <!-- GROUP 3: FINANCIAL HEALTH -->
+        <div>
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><div style="width:3px;height:20px;background:var(--red);border-radius:2px;"></div><h4 style="font-family:'Playfair Display',serif;font-size:1.1rem;">Solvency &amp; Health Ratios — Can it survive tough times?</h4></div>
+          <div class="g3">
+            <div class="rcrd"><div class="fic">⚖️</div><h3>Debt-to-Equity</h3><div class="rfm">Total Debt ÷ Shareholders' Equity</div><p>Measures how much debt funds the business relative to equity. High D/E amplifies both gains AND losses. Always compare within the same sector — capital-intensive industries naturally carry more debt.</p><div class="rbench">✅ &lt;1.0 = conservative · &gt;2.0 = high leverage, watch closely</div></div>
+            <div class="rcrd"><div class="fic">🛡️</div><h3>Current Ratio</h3><div class="rfm">Current Assets ÷ Current Liabilities</div><p>Short-term liquidity test — can the company pay all obligations due in the next 12 months? A ratio below 1.0 means current liabilities exceed current assets — a serious red flag for investors.</p><div class="rbench">✅ &gt;1.5 = healthy · &lt;1.0 = potential liquidity crisis</div></div>
+            <div class="rcrd"><div class="fic">📈</div><h3>EPS Growth (YoY)</h3><div class="rfm">(Current EPS − Prior EPS) ÷ Prior EPS</div><p>Earnings Per Share growth is the most closely tracked metric by institutional investors. Consistent double-digit EPS growth sustained over 5+ years is the hallmark of a great compounding business.</p><div class="rbench">✅ &gt;10% YoY = strong · &gt;20% YoY = exceptional</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── COMPARE ── -->
+      <div class="tc" id="tc-comp">
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.42rem;margin-bottom:9px;">Fundamental vs Technical — Complete Side-by-Side</h3>
+        <p style="color:var(--muted);font-size:.91rem;line-height:1.75;max-width:680px;font-weight:300;margin-bottom:26px;">Both methods have distinct strengths, weaknesses, and ideal use cases. The most profitable investors know when to apply each framework — and how to combine them for maximum edge.</p>
+        <div style="overflow-x:auto;">
+          <table class="ctbl">
+            <thead><tr><th>Dimension</th><th>📊 Fundamental Analysis</th><th>📈 Technical Analysis</th></tr></thead>
+            <tbody>
+              <tr><td>Core Question</td><td>What is this company WORTH intrinsically?</td><td>Where will this PRICE move next?</td></tr>
+              <tr><td>Time Horizon</td><td>Long-term (months to decades)</td><td>Short-to-medium term (hours to months)</td></tr>
+              <tr><td>Primary Data Source</td><td>Financial statements, earnings, management, macro</td><td>Price charts, volume, patterns, indicators</td></tr>
+              <tr><td>Underlying Belief</td><td>Price eventually reflects true intrinsic value</td><td>All information is priced in; history repeats</td></tr>
+              <tr><td>Key Tools Used</td><td>P/E, P/B, ROE, FCF, DCF models, earnings calls</td><td>RSI, MACD, moving averages, candlesticks, S&amp;R</td></tr>
+              <tr><td>Entry Decision</td><td>Buy when price &lt; intrinsic value (margin of safety)</td><td>Buy when chart patterns confirm uptrend/breakout</td></tr>
+              <tr><td>Best Market Condition</td><td>Stable, rational markets with clear earnings trends</td><td>Volatile, liquid markets with clear chart patterns</td></tr>
+              <tr><td>Primary Risk</td><td>Value trap — cheap for years without recovery</td><td>False signals — patterns fail in low-volume markets</td></tr>
+              <tr><td>Famous Practitioners</td><td>Warren Buffett, Peter Lynch, Benjamin Graham</td><td>Jesse Livermore, Paul Tudor Jones, Stanley Druckenmiller</td></tr>
+              <tr><td>Learning Curve</td><td>High — requires accounting &amp; economics knowledge</td><td>Medium — requires chart reading &amp; strict discipline</td></tr>
+              <tr><td>Works Best For</td><td>Stock picking, long-term wealth building, IPOs</td><td>Timing entries/exits, ETF trading, crypto &amp; forex</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="g2" style="margin-bottom:20px;">
+          <div style="background:rgba(45,98,69,.07);border:1px solid rgba(45,98,69,.2);border-radius:12px;padding:20px;">
+            <h4 style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--green);margin-bottom:10px;">✅ Fundamental Strengths</h4>
+            <p style="font-size:.83rem;color:var(--mid);line-height:1.72;">Identifies high-quality businesses before the market recognises them. Builds genuine long-term wealth through compounding. Less susceptible to market noise, manipulation, and short-term volatility. Backed by decades of academic research and the greatest investment track records in history.</p>
+          </div>
+          <div style="background:rgba(184,150,62,.07);border:1px solid rgba(184,150,62,.22);border-radius:12px;padding:20px;">
+            <h4 style="font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--gold);margin-bottom:10px;">✅ Technical Strengths</h4>
+            <p style="font-size:.83rem;color:var(--mid);line-height:1.72;">Provides precise entry and exit timing signals that save significant money. Works across ALL asset classes — stocks, crypto, forex, commodities equally well. Faster feedback loops enable quicker skill development. Profits both long (rising) and short (falling) markets.</p>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--glow),rgba(45,98,69,.05));border:1px solid var(--bdr);border-radius:12px;padding:22px;text-align:center;">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.22rem;margin-bottom:10px;">🏆 The SmartInvest Hybrid Approach</h3>
+          <p style="color:var(--muted);max-width:600px;margin:0 auto;line-height:1.8;font-weight:300;font-size:.91rem;">The world's most consistent performers combine both disciplines. Use <strong style="color:var(--dark)">fundamental analysis</strong> to build a watchlist of quality companies worth owning. Then use <strong style="color:var(--dark)">technical analysis</strong> to time your entry precisely — buying great businesses at technically strong price points for maximum advantage.</p>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--dark);padding:28px 44px;text-align:center;margin-top:32px;"><p style="color:rgba(255,255,255,.38);font-size:.76rem;"><a onclick="go('home')" style="color:var(--gold2);cursor:pointer;">← Return Home</a></p></div>
+  </div>
+
+  <!-- ═══ CALCULATOR ═══ -->
+  <div class="page" id="p-calc">
+    <div class="sec ptop">
+      <p class="stag">Financial Tools</p>
+      <h2 class="stitle">Investment Calculators</h2>
+      <p class="ssub">Run the numbers before every investment — four essential calculators in one place.</p>
+      <div class="g2">
+        <div class="ccrd"><h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:4px;">📅 SIP / DCA Calculator</h3><p style="color:var(--muted);font-size:.79rem;margin-bottom:17px;">Systematic Investment Plan — invest a fixed amount monthly</p><div class="fg"><label class="fl">Monthly Investment (₹)</label><input type="number" class="fi" id="sipAmt" value="10000" oninput="calcSIP()"></div><div class="fg"><label class="fl">Expected Annual Return (%)</label><input type="number" class="fi" id="sipRate" value="12" oninput="calcSIP()"></div><div class="fg"><label class="fl">Time Period (Years)</label><input type="number" class="fi" id="sipYrs" value="10" oninput="calcSIP()"></div><div class="cres"><div class="cresg"><div><div class="clbl">Invested</div><div class="cval" id="sipInv">—</div></div><div><div class="clbl">Returns</div><div class="cval" style="color:var(--green)" id="sipRet">—</div></div><div><div class="clbl">Final Value</div><div class="cval" style="color:var(--gold)" id="sipTot">—</div></div></div></div></div>
+        <div class="ccrd"><h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:4px;">🔢 Compound Interest</h3><p style="color:var(--muted);font-size:.79rem;margin-bottom:17px;">Lump-sum investment growth with the power of compounding</p><div class="fg"><label class="fl">Principal Amount (₹)</label><input type="number" class="fi" id="ciP" value="100000" oninput="calcCI()"></div><div class="fg"><label class="fl">Annual Interest Rate (%)</label><input type="number" class="fi" id="ciR" value="10" oninput="calcCI()"></div><div class="fg"><label class="fl">Time Period (Years)</label><input type="number" class="fi" id="ciY" value="10" oninput="calcCI()"></div><div class="cres"><div class="cresg"><div><div class="clbl">Principal</div><div class="cval" id="ciPV">—</div></div><div><div class="clbl">Interest Earned</div><div class="cval" style="color:var(--green)" id="ciI">—</div></div><div><div class="clbl">Maturity Value</div><div class="cval" style="color:var(--gold)" id="ciT">—</div></div></div></div></div>
+        <div class="ccrd"><h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:4px;">📊 ROI Calculator</h3><p style="color:var(--muted);font-size:.79rem;margin-bottom:17px;">Return on Investment for any trade or stock position</p><div class="fg"><label class="fl">Buy Price (₹)</label><input type="number" class="fi" id="roiB" value="1000" oninput="calcROI()"></div><div class="fg"><label class="fl">Sell Price (₹)</label><input type="number" class="fi" id="roiS" value="1400" oninput="calcROI()"></div><div class="fg"><label class="fl">Number of Units</label><input type="number" class="fi" id="roiU" value="100" oninput="calcROI()"></div><div class="cres"><div class="cresg"><div><div class="clbl">Amount Invested</div><div class="cval" id="roiInv">—</div></div><div><div class="clbl">Profit / Loss</div><div class="cval" id="roiPL">—</div></div><div><div class="clbl">ROI %</div><div class="cval" id="roiPct">—</div></div></div></div></div>
+        <div class="ccrd"><h3 style="font-family:'Playfair Display',serif;font-size:1.15rem;margin-bottom:4px;">⚠️ Position Size Calculator</h3><p style="color:var(--muted);font-size:.79rem;margin-bottom:17px;">Never risk more than you can afford — size every position safely</p><div class="fg"><label class="fl">Total Portfolio Value (₹)</label><input type="number" class="fi" id="psPort" value="500000" oninput="calcPS()"></div><div class="fg"><label class="fl">Risk Per Trade (%)</label><input type="number" class="fi" id="psRisk" value="2" oninput="calcPS()"></div><div class="fg"><label class="fl">Stop Loss Distance (%)</label><input type="number" class="fi" id="psSL" value="5" oninput="calcPS()"></div><div class="cres"><div class="cresg"><div><div class="clbl">Max Risk ₹</div><div class="cval" style="color:var(--red)" id="psMR">—</div></div><div><div class="clbl">Position Size</div><div class="cval" style="color:var(--gold)" id="psSize">—</div></div><div><div class="clbl">% of Portfolio</div><div class="cval" style="color:var(--green)" id="psPct">—</div></div></div></div></div>
+      </div>
+    </div>
+    <div style="background:var(--dark);padding:28px 44px;text-align:center;margin-top:32px;"><p style="color:rgba(255,255,255,.38);font-size:.76rem;"><a onclick="go('home')" style="color:var(--gold2);cursor:pointer;">← Return Home</a></p></div>
+  </div>
+
+  <!-- ═══ QUIZ ═══ -->
+  <div class="page" id="p-quiz">
+    <div class="sec ptop" style="max-width:700px;margin:0 auto;">
+      <p class="stag">Test Your Knowledge</p>
+      <h2 class="stitle">Finance IQ Quiz</h2>
+      <p class="ssub">10 questions across investing, markets, and financial concepts.</p>
+      <div id="qStart" style="text-align:center;padding:46px 28px;background:var(--sur);border:1px solid var(--bdr);border-radius:18px;">
+        <div style="font-size:2.8rem;margin-bottom:13px;">🧠</div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.45rem;margin-bottom:9px;">Ready to test your Financial IQ?</h3>
+        <p style="color:var(--muted);margin-bottom:24px;font-weight:300;font-size:.88rem;">10 questions · Multiple choice · Instant feedback · Scored out of 10</p>
+        <div style="display:flex;gap:20px;justify-content:center;margin-bottom:26px;">
+          <div style="text-align:center;"><div style="font-size:1.3rem;">⏱️</div><div style="font-size:.72rem;color:var(--muted);margin-top:3px;">No time limit</div></div>
+          <div style="text-align:center;"><div style="font-size:1.3rem;">💡</div><div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Learn as you go</div></div>
+          <div style="text-align:center;"><div style="font-size:1.3rem;">📊</div><div style="font-size:.72rem;color:var(--muted);margin-top:3px;">Instant scoring</div></div>
+        </div>
+        <button class="btn-p" onclick="startQuiz()">Start the Quiz →</button>
+      </div>
+      <div id="qQuestion" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+          <div style="font-size:.8rem;color:var(--muted);font-weight:500;">Question <span id="qNum">1</span> of 10</div>
+          <div style="font-size:.8rem;font-weight:700;color:var(--gold);">Score: <span id="qScore">0</span></div>
+        </div>
+        <div class="qpbar"><div class="qpfill" id="qProg" style="width:10%"></div></div>
+        <div style="background:var(--sur);border:1px solid var(--bdr);border-radius:18px;padding:28px;">
+          <p style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:11px;" id="qCat">Category</p>
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.25rem;line-height:1.45;margin-bottom:22px;" id="qTxt">Question</h3>
+          <div id="qOpts"></div>
+          <div id="qFB" class="qfb" style="display:none;"></div>
+          <button id="qNext" class="btn-p" onclick="nextQ()" style="display:none;margin-top:14px;">Next Question →</button>
+        </div>
+      </div>
+      <div id="qResult" style="display:none;text-align:center;background:var(--sur);border:1px solid var(--bdr);border-radius:18px;padding:46px 28px;">
+        <div id="rEmoji" style="font-size:3rem;margin-bottom:12px;"></div>
+        <h3 style="font-family:'Playfair Display',serif;font-size:1.75rem;margin-bottom:6px;">Quiz Complete!</h3>
+        <div style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;color:var(--gold);margin:12px 0;" id="rScore"></div>
+        <p style="font-weight:600;font-size:.93rem;margin-bottom:7px;" id="rLabel"></p>
+        <p style="font-size:.85rem;color:var(--muted);max-width:340px;margin:0 auto 26px;" id="rMsg"></p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+          <button class="btn-p" onclick="startQuiz()">Retake Quiz</button>
+          <button class="btn-o" onclick="go('analysis')">Study More</button>
+        </div>
+      </div>
+    </div>
+    <div style="background:var(--dark);padding:28px 44px;text-align:center;margin-top:68px;"><p style="color:rgba(255,255,255,.38);font-size:.76rem;"><a onclick="go('home')" style="color:var(--gold2);cursor:pointer;">← Return Home</a></p></div>
+  </div>
+
+  <!-- ═══ AI CHAT — FULL DEDICATED PAGE ═══ -->
+  <div class="page" id="p-aichat">
+    <div class="chatpage">
+
+      <!-- Top bar -->
+      <div class="chat-topbar">
+        <div class="chat-bot-av">🤖</div>
+        <div>
+          <div class="chat-bot-name">SmartInvest AI Advisor</div>
+          <div class="chat-bot-status">Online · Available 24/7 · Financial Intelligence</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+          <span style="background:rgba(255,255,255,.08);border-radius:7px;padding:7px 13px;font-size:.75rem;color:rgba(255,255,255,.55);">💡 Ask me anything about investing</span>
+          <button class="btn-g" style="border-color:rgba(255,255,255,.3);color:rgba(255,255,255,.5);" onclick="clearChat()">Clear Chat</button>
+        </div>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="chat-body">
+        <div class="chat-scroll" id="chatScroll">
+
+          <!-- Welcome screen (shown before first message) -->
+          <div id="chatWelcome" class="chat-welcome">
+            <div class="cwelcome">
+              <div class="cw-icon">🤖</div>
+              <h2>Hello, <span id="chatWelcomeName" style="color:var(--gold);">Investor</span>!</h2>
+              <p>I'm your personal AI financial advisor. Ask me about investments, market trends, financial ratios, or building your portfolio — I'm here to help.</p>
+            </div>
+            <div class="ctopics">
+              <div class="ctopic" onclick="topicAsk('What are the best investments right now and why?')"><div class="ti">📈</div><div class="tn">Investment Ideas</div><div class="td">Where to put money now</div></div>
+              <div class="ctopic" onclick="topicAsk('How do I reduce risk and protect my investment portfolio?')"><div class="ti">🛡️</div><div class="tn">Risk Management</div><div class="td">Protect your capital</div></div>
+              <div class="ctopic" onclick="topicAsk('Explain fundamental vs technical analysis with examples')"><div class="ti">🔬</div><div class="tn">Analysis Methods</div><div class="td">Fundamental vs Technical</div></div>
+              <div class="ctopic" onclick="topicAsk('How does compound interest work? Give me an example')"><div class="ti">🔢</div><div class="tn">Compound Interest</div><div class="td">The 8th wonder of the world</div></div>
+              <div class="ctopic" onclick="topicAsk('What are ETFs and should a beginner invest in them?')"><div class="ti">🗂️</div><div class="tn">ETFs Explained</div><div class="td">What, why, and how to buy</div></div>
+              <div class="ctopic" onclick="topicAsk('How do I build an investment portfolio from scratch as a beginner?')"><div class="ti">🌱</div><div class="tn">Beginner Portfolio</div><div class="td">Step-by-step guide</div></div>
+              <div class="ctopic" onclick="topicAsk('Compare stocks vs crypto — pros, cons and what to choose')"><div class="ti">₿</div><div class="tn">Stocks vs Crypto</div><div class="td">Honest comparison</div></div>
+              <div class="ctopic" onclick="topicAsk('Explain P/E ratio, ROE and free cash flow in simple terms')"><div class="ti">📊</div><div class="tn">Financial Ratios</div><div class="td">Key metrics simplified</div></div>
+            </div>
+            <div class="cdivider">— or type your own question below —</div>
+          </div>
+
+          <!-- Messages appear here -->
+          <div id="chatMsgs" class="msgs-wrap" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- Fixed input at bottom -->
+      <div class="chat-bottom">
+        <div class="chat-bottom-inner">
+          <input class="chat-inp" id="chatInp" placeholder="Ask about investments, ratios, markets, strategy…" onkeydown="if(event.key==='Enter')sendChatMsg()">
+          <button class="chat-send" onclick="sendChatMsg()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2" fill="white" stroke="none"/></svg>
+          </button>
+        </div>
+        <div class="chat-note">SmartInvest AI provides educational content only — not personalised financial advice. Always do your own research.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="page" id="p-dash">
+    <div class="sec ptop">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;flex-wrap:wrap;gap:14px;">
+        <div>
+          <p style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;" id="dashGreet">Good evening 🌆</p>
+          <h2 style="font-family:'Playfair Display',serif;font-size:1.85rem;font-weight:700;">Welcome back, <span id="dashName" style="color:var(--gold);">Investor</span></h2>
+          <p style="color:var(--muted);font-size:.83rem;margin-top:5px;" id="dashDate"></p>
+        </div>
+        <button class="btn-p" onclick="go('invest')" style="align-self:center;">+ New Investment</button>
+      </div>
+      <div class="pgrid">
+        <div class="pcard"><div class="plbl">Total Portfolio</div><div class="pval">$48,320</div><div class="pchi up">↑ +$3,241 today</div></div>
+        <div class="pcard"><div class="plbl">Total Return</div><div class="pval" style="color:var(--green)">+22.4%</div><div class="pchi" style="color:var(--muted)">Since Jan 2025</div></div>
+        <div class="pcard"><div class="plbl">Active Positions</div><div class="pval">12</div><div class="pchi" style="color:var(--muted)">Across 5 sectors</div></div>
+        <div class="pcard"><div class="plbl">Risk Score</div><div class="pval" style="color:var(--gold)">Moderate</div><div class="pchi" style="color:var(--muted)">Score: 58 / 100</div></div>
+      </div>
+      <div class="cbox">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.08rem;">Portfolio Performance</h3>
+          <div style="display:flex;gap:6px;">
+            <button class="btn-g" id="cbtn-1M" onclick="renderChart('1M')" style="padding:5px 11px;font-size:.73rem;">1M</button>
+            <button class="btn-g" id="cbtn-3M" onclick="renderChart('3M')" style="padding:5px 11px;font-size:.73rem;background:var(--dark);color:#fff;border-color:var(--dark);">3M</button>
+            <button class="btn-g" id="cbtn-1Y" onclick="renderChart('1Y')" style="padding:5px 11px;font-size:.73rem;">1Y</button>
+          </div>
+        </div>
+        <svg id="pchart" viewBox="0 0 800 140" style="width:100%;height:140px;" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="arow">
+        <div class="acard">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.08rem;margin-bottom:14px;">Asset Allocation</h3>
+          <div class="ai-row"><span class="ai-n">US Equities</span><div class="ai-b"><div class="ai-f" style="width:45%"></div></div><span class="ai-p">45%</span></div>
+          <div class="ai-row"><span class="ai-n">Bonds &amp; Fixed</span><div class="ai-b"><div class="ai-f" style="width:20%"></div></div><span class="ai-p">20%</span></div>
+          <div class="ai-row"><span class="ai-n">International</span><div class="ai-b"><div class="ai-f" style="width:18%"></div></div><span class="ai-p">18%</span></div>
+          <div class="ai-row"><span class="ai-n">REITs</span><div class="ai-b"><div class="ai-f" style="width:10%"></div></div><span class="ai-p">10%</span></div>
+          <div class="ai-row"><span class="ai-n">Crypto</span><div class="ai-b"><div class="ai-f" style="width:7%;background:linear-gradient(90deg,#c0392b,#e74c3c)"></div></div><span class="ai-p" style="color:var(--red)">7%</span></div>
+        </div>
+        <div class="acard">
+          <h3 style="font-family:'Playfair Display',serif;font-size:1.08rem;margin-bottom:14px;">Watchlist</h3>
+          <div id="watchlist"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+var MKT=[
+  {sym:'AAPL',name:'Apple Inc.',price:213.42,chg:2.84,pct:1.35,vol:'62.4M',sig:'Buy'},
+  {sym:'NVDA',name:'NVIDIA Corp.',price:887.31,chg:18.92,pct:2.18,vol:'38.1M',sig:'Strong Buy'},
+  {sym:'MSFT',name:'Microsoft',price:422.18,chg:-3.12,pct:-0.73,vol:'24.8M',sig:'Hold'},
+  {sym:'GOOGL',name:'Alphabet Inc.',price:192.84,chg:1.24,pct:0.65,vol:'19.2M',sig:'Buy'},
+  {sym:'AMZN',name:'Amazon.com',price:228.17,chg:4.91,pct:2.20,vol:'33.6M',sig:'Buy'},
+  {sym:'TSLA',name:'Tesla Inc.',price:178.33,chg:-8.44,pct:-4.51,vol:'112M',sig:'Sell'},
+  {sym:'BTC',name:'Bitcoin',price:82104,chg:-1240,pct:-1.49,vol:'41.2B',sig:'Hold'},
+  {sym:'GLD',name:'Gold ETF',price:249.82,chg:-0.78,pct:-0.31,vol:'8.3M',sig:'Hold'}
+];
+var SECTORS=[
+  {n:'Technology',p:82,u:true},{n:'Healthcare',p:61,u:true},
+  {n:'Financials',p:54,u:true},{n:'Consumer Disc.',p:38,u:false},
+  {n:'Energy',p:29,u:false},{n:'Utilities',p:22,u:false}
+];
+var WL=[
+  {s:'AAPL',p:'$213.42',c:'+1.35%',u:true},{s:'NVDA',p:'$887.31',c:'+2.18%',u:true},
+  {s:'TSLA',p:'$178.33',c:'−4.51%',u:false},{s:'BTC',p:'$82,104',c:'−1.49%',u:false},
+  {s:'GLD',p:'$249.82',c:'−0.31%',u:false}
+];
+var TICKERS=['AAPL','$213.42','+1.35%','NVDA','$887.31','+2.18%','MSFT','$422.18','−0.73%','GOOGL','$192.84','+0.65%','TSLA','$178.33','−4.51%','BTC','$82,104','−1.49%','S&P500','5,842','+1.24%','GOLD','$2,941','−0.31%'];
+var QUIZ=[
+  {c:'Basics',q:'What does the P/E ratio stand for?',o:['Price-to-Earnings','Profit-to-Equity','Price-to-Equity','Profit-to-Earnings'],a:0,e:'P/E (Price-to-Earnings) ratio tells you how much investors pay per ₹1 of earnings. It is the most-watched valuation ratio in equity markets.'},
+  {c:'Investing',q:'Which strategy is Warren Buffett most famous for?',o:['Day Trading','Technical Analysis','Value Investing','Arbitrage Trading'],a:2,e:'Buffett is the greatest Value Investor — buying fundamentally strong businesses at or below intrinsic value and holding for the very long term to allow compounding to work.'},
+  {c:'Markets',q:'What defines a "bull market"?',o:['Markets falling more than 20%','Markets rising 20%+ from recent lows','Extremely high trading volatility','A sudden market crash or correction'],a:1,e:'A bull market is defined as a sustained rise of 20%+ from recent lows. The opposite — a 20%+ sustained decline — is called a bear market.'},
+  {c:'Risk',q:'What does diversification mean in investing?',o:['Putting all money in one best stock','Spreading investments across different asset classes','Buying only safe government bonds','Increasing trade frequency for better returns'],a:1,e:'Diversification reduces risk by spreading investments across different assets, sectors, and geographies — so a loss in one area does not devastate the entire portfolio.'},
+  {c:'Concepts',q:'What exactly is an ETF?',o:['A type of government bond','A high-yield savings account','A fund tracking an index that trades on a stock exchange','A special government savings scheme'],a:2,e:'An ETF (Exchange-Traded Fund) is a basket of securities tracking an index like Nifty 50 or S&P 500. It trades on exchanges like a share — with very low fees and instant diversification.'},
+  {c:'Technical Analysis',q:'When RSI climbs above 70, a stock is considered:',o:['Oversold — a great time to buy','Undervalued by the market','Overbought — possible pullback ahead','In a very strong uptrend to chase'],a:2,e:'RSI (Relative Strength Index) above 70 signals the stock is overbought — it has risen too fast and a correction or consolidation is likely to follow soon.'},
+  {c:'Fundamental Analysis',q:'Free Cash Flow (FCF) is best described as:',o:['A company\'s total revenue for the year','Cash remaining after operations and capital expenditures','The total dividends paid to shareholders','The gross profit margin percentage of sales'],a:1,e:'FCF = Operating Cash Flow − Capital Expenditures. It represents actual cash generated after maintaining the business. Unlike earnings, FCF cannot be manipulated by accounting methods.'},
+  {c:'Concepts',q:'Compound interest is famously called:',o:['The magic of debt and leverage','The 8th wonder of the world','A negative return on investment','Inflation protection for investors'],a:1,e:'Einstein allegedly called compound interest the 8th wonder of the world: "He who understands it, earns it; he who doesn\'t, pays it." Reinvesting returns creates truly exponential growth.'},
+  {c:'Markets',q:'What is the purpose of a stop-loss order?',o:['An order to buy more shares when price falls','A restriction placed on dividend payments','An automatic sell order triggered at a set price to limit losses','A special tax applied to profitable trades'],a:2,e:'A stop-loss automatically sells your position when the price falls to a preset level, protecting you from much larger losses in fast-moving or sharply declining markets.'},
+  {c:'Investing',q:'Which of the following is NOT a financial ratio?',o:['Price-to-Earnings (P/E) Ratio','Return on Equity (ROE)','MACD Indicator','Debt-to-Equity (D/E) Ratio'],a:2,e:'MACD (Moving Average Convergence Divergence) is a technical chart indicator — NOT a financial ratio. P/E, ROE, and D/E are all fundamental financial ratios used in company valuation.'}
+];
+
+// ============================================================
+// AI CHAT RESPONSES
+// ============================================================
+var AIDATA={
+  invest:'Here are the top opportunities our AI is highlighting right now:\n\n📈 <strong>S&P 500 Index Funds (VOO / SPY)</strong>\nBroad US market exposure. 10%+ historical annual returns. Lowest cost way to own the American economy. Ideal core holding for any portfolio.\n\n🏠 <strong>REITs (Real Estate Investment Trusts)</strong>\n8%+ dividend yields, acts as a built-in inflation hedge, generates strong passive income without owning physical property.\n\n💻 <strong>Tech Growth ETFs (QQQ)</strong>\nAI and semiconductor growth cycle remains structurally intact. Concentrated exposure to the biggest technological transformation in decades.\n\n🔒 <strong>US Treasury Bills (4.8% yield)</strong>\nRisk-free government-backed return. Perfect as a defensive allocation or as a parking spot for dry powder while waiting for better opportunities.\n\n🌏 <strong>India / Emerging Market ETFs</strong>\nHigh-risk, high-reward. India\'s demographic dividend and growing middle class make it one of the most compelling long-term growth stories globally.\n\nWant a deeper breakdown of any of these?',
+
+  risk:'Here are 6 risk management principles used by professional investors:\n\n🛡️ <strong>Diversify across asset classes</strong>\nSpread across equities, bonds, real estate, gold, and cash. No single asset should represent more than 25–30% of your portfolio.\n\n📊 <strong>The Classic 60/40 Rule</strong>\n60% equities for long-term growth, 40% bonds and fixed income for stability and income. Adjust based on your age and risk tolerance.\n\n🎯 <strong>Position Sizing — the 1–2% rule</strong>\nNever risk more than 1–2% of your total portfolio on any single trade. This prevents any one mistake from causing serious damage.\n\n🔔 <strong>Always use Stop-Loss orders</strong>\nSet automatic stop-losses at 8–15% below your entry price. This removes emotion from the decision to exit losing positions.\n\n⚖️ <strong>Rebalance every quarter</strong>\nTrim positions that have grown too large. Add to underweighted assets. This forces "buy low, sell high" discipline automatically.\n\n💰 <strong>Maintain a 3–6 month emergency fund</strong>\nKeep living expenses in cash outside your investment portfolio. This prevents being forced to sell investments at the wrong time.',
+
+  analysis:'Here is a clear breakdown of the two main investment analysis frameworks:\n\n📊 <strong>FUNDAMENTAL ANALYSIS</strong>\nEvaluates a company\'s intrinsic value using financial statements (income, balance sheet, cash flow), management quality, competitive advantages (moats), and macro environment.\n\n✅ Best for: Long-term investors, stock picking, retirement planning\n⏰ Time horizon: Months to decades\n🔑 Key tools: P/E ratio, ROE, Free Cash Flow, D/E ratio, DCF valuation\n👤 Famous users: Warren Buffett, Peter Lynch, Benjamin Graham\n\n📈 <strong>TECHNICAL ANALYSIS</strong>\nStudies price charts and volume patterns to identify trends and forecast future price movements. Assumes all information is already priced in, and history tends to repeat itself.\n\n✅ Best for: Active traders, timing entries/exits precisely\n⏰ Time horizon: Hours to months\n🔑 Key tools: RSI, MACD, moving averages, support &amp; resistance levels\n👤 Famous users: Paul Tudor Jones, Jesse Livermore\n\n🏆 <strong>THE HYBRID APPROACH (Recommended)</strong>\nUse fundamental analysis to identify quality companies worth owning. Then use technical analysis to time your entry at the optimal price. This combines the best of both worlds.',
+
+  compound:'Compound interest is the most powerful force in personal finance. Here is how it works:\n\n📐 <strong>The Formula</strong>\nFinal Value = Principal × (1 + rate)^years\n\n💡 <strong>A Simple Example</strong>\nInvest ₹1,00,000 at 12% annual return:\n• After 10 years: ₹3,10,585\n• After 20 years: ₹9,64,629\n• After 30 years: ₹29,95,992\n\nYour money multiplied 30x — without adding a single rupee after year 1!\n\n⚡ <strong>The Key Insight</strong>\nThe growth is not linear — it is exponential. Each year you earn returns on your returns. This is why Einstein called it "the 8th wonder of the world."\n\n🎯 <strong>3 Ways to Maximise Compounding</strong>\n1. Start as early as possible — time is your most powerful asset\n2. Reinvest every dividend and return — never withdraw early\n3. Minimise fees and taxes — they destroy compounding silently\n\nWant me to run specific numbers for your situation using our calculator?',
+
+  etf:'Great question! Here is everything you need to know about ETFs:\n\n📦 <strong>What is an ETF?</strong>\nAn Exchange-Traded Fund is a basket of securities (stocks, bonds, commodities) that tracks an index like Nifty 50 or S&P 500. It trades on stock exchanges just like a regular share throughout the day.\n\n✅ <strong>Key Benefits of ETFs</strong>\n• Instant diversification — one ETF = 50 to 500+ companies\n• Very low fees (0.03% to 0.5% vs 1–2% for active funds)\n• High transparency — you always know what you own\n• Tax efficient — fewer capital gains events than mutual funds\n• Easy to buy and sell like any share\n\n📊 <strong>Popular ETF Types</strong>\n• Index ETFs: VOO, SPY (tracks S&P 500) — ideal for beginners\n• Sector ETFs: QQQ (technology), XLF (financials), XLE (energy)\n• Bond ETFs: BND, AGG — for income and stability\n• Gold ETF: GLD — inflation hedge\n\n🌱 <strong>For Beginners — Start Simple</strong>\nBegin with just one broad index ETF (like Nifty 50 or S&P 500 ETF). Add more ETFs for diversification as your knowledge and portfolio grows.',
+
+  portfolio:'Building your first portfolio — a step-by-step beginner guide:\n\n🥇 <strong>Step 1: Build Your Emergency Fund First</strong>\nBefore investing a single rupee, ensure you have 3–6 months of living expenses in a savings account or liquid fund. This is non-negotiable.\n\n🎯 <strong>Step 2: Define Your Goal and Timeline</strong>\nAre you investing for retirement (20+ years), a home (5–10 years), or passive income? Your timeline determines how much risk you can afford to take.\n\n📊 <strong>Step 3: The Beginner Portfolio Blueprint</strong>\n• 50–60% — Broad Index Fund (Nifty 50 / S&P 500 ETF)\n• 20–25% — International ETF (US or Global exposure)\n• 10–15% — Bond Fund (stability and income)\n• 5–10% — Gold ETF (inflation hedge)\n\n💡 <strong>Step 4: Set Up SIP (Systematic Investment Plan)</strong>\nAutomate a fixed monthly investment — even ₹1,000–5,000 is a powerful start. The key is consistency, not the size of investment.\n\n⚖️ <strong>Step 5: Rebalance Every 6–12 Months</strong>\nReview and adjust your allocation once or twice a year to maintain your target percentages.\n\nWant me to calculate what your SIP would grow to? Try the Calculator tab!',
+
+  crypto:'Stocks vs Crypto — an honest, balanced comparison:\n\n📊 <strong>STOCKS (Equities)</strong>\n✅ Regulated by SEBI / SEC — strong investor protection\n✅ Backed by real businesses with actual earnings and assets\n✅ Historical returns: 10–15% annually (Nifty 50, S&P 500)\n✅ Dividends provide passive income\n✅ Lower volatility — easier for long-term wealth building\n❌ Markets close on weekends and holidays\n\n₿ <strong>CRYPTO (Bitcoin, Ethereum etc.)</strong>\n✅ 24/7 trading — markets never close\n✅ Decentralised — no single government controls it\n✅ Massive upside potential in bull cycles (BTC: +1000% in 2021)\n✅ Growing institutional adoption and regulatory clarity\n❌ Extreme volatility — can fall 80–90% in bear markets\n❌ No underlying earnings or dividend — pure speculation on price\n❌ Regulatory uncertainty in many countries\n❌ Security risks (exchange hacks, wallet loss)\n\n🎯 <strong>SmartInvest Recommendation</strong>\nFor most investors, keep crypto to a maximum 5–10% of your portfolio. Build your foundation in index funds and equities first, then add crypto as a small high-risk speculative allocation if you have the stomach for volatility.',
+
+  ratios:'Here are the 5 most important financial ratios explained simply:\n\n📊 <strong>1. P/E Ratio (Price-to-Earnings)</strong>\nFormula: Stock Price ÷ Earnings Per Share\nWhat it means: How much you pay for ₹1 of profit\n✅ Good: P/E below 20 (value) · Watch out: P/E above 40\n\n💰 <strong>2. ROE (Return on Equity)</strong>\nFormula: Net Income ÷ Shareholders Equity\nWhat it means: How efficiently management uses your capital\n✅ Good: Above 15% consistently over 5+ years\n\n💧 <strong>3. Free Cash Flow</strong>\nFormula: Operating Cash Flow − Capital Expenditure\nWhat it means: Actual cash left after running the business\n✅ Good: Positive and growing year-over-year\n\n⚖️ <strong>4. Debt-to-Equity (D/E) Ratio</strong>\nFormula: Total Debt ÷ Shareholders Equity\nWhat it means: How much debt funds the business\n✅ Good: Below 1.0 for most sectors · Be cautious above 2.0\n\n📈 <strong>5. EPS Growth</strong>\nFormula: (Current EPS − Prior EPS) ÷ Prior EPS\nWhat it means: How fast earnings per share are growing\n✅ Good: Consistent 15–20%+ growth over 5 years\n\nWant to learn more? Check out the Key Financial Ratios tab in the Analysis section!',
+
+  default:'I can help you with many investing topics! Here are some things I do well:\n\n📊 <strong>Investment Strategy</strong> — Portfolio building, asset allocation, where to invest\n🔬 <strong>Analysis Methods</strong> — Fundamental, technical, and ratio analysis\n📈 <strong>Markets &amp; Assets</strong> — Stocks, ETFs, bonds, crypto, REITs explained\n🧮 <strong>Calculations</strong> — Compound interest, SIP returns, ROI, position sizing\n🛡️ <strong>Risk Management</strong> — Diversification, stop-losses, position sizing rules\n💡 <strong>Financial Education</strong> — Concepts, terminology, how markets work\n\nJust type your question and I will do my best to give you a clear, useful answer!'
+};
+
+function getAIReply(msg){
+  var l=msg.toLowerCase();
+  if(l.match(/invest|where|put money|buy|stock|opport/)) return AIDATA.invest;
+  if(l.match(/risk|protect|safe|diversif|hedge|stop.?loss/)) return AIDATA.risk;
+  if(l.match(/fundament|technical|analys|chart|pattern/)) return AIDATA.analysis;
+  if(l.match(/compound|interest|compound/)) return AIDATA.compound;
+  if(l.match(/etf|index fund|tracker/)) return AIDATA.etf;
+  if(l.match(/portfolio|beginner|start|first|how to/)) return AIDATA.portfolio;
+  if(l.match(/crypto|bitcoin|btc|eth|stock vs/)) return AIDATA.crypto;
+  if(l.match(/ratio|p\/e|roe|fcf|debt|equity|eps/)) return AIDATA.ratios;
+  return AIDATA.default;
+}
+
+// ============================================================
+// STATE
+// ============================================================
+var user=null, qIdx=0, qScore=0, qDone=false, chatStarted=false;
+
+// ============================================================
+// AUTH
+// ============================================================
+function toggleAuth(t){
+  document.getElementById('loginCard').style.display=t==='login'?'block':'none';
+  document.getElementById('regCard').style.display=t==='reg'?'block':'none';
+  document.getElementById('forgotCard').style.display=t==='forgot'?'block':'none';
+  if(t==='forgot'){
+    document.getElementById('fEmail').value='';
+    document.getElementById('fError').style.display='none';
+    document.getElementById('fStep1').style.display='block';
+    document.getElementById('fStep2').style.display='none';
+  }
+}
+
+var resetEmail='';
+function doForgot(){
+  var em=(document.getElementById('fEmail').value||'').trim().toLowerCase();
+  var err=document.getElementById('fError');
+  if(!em){showToast('Please enter your email address');return;}
+  var account=registeredUsers[em];
+  if(!account){
+    err.style.display='block';
+    err.textContent='No account found with that email. Please check and try again.';
+    return;
+  }
+  err.style.display='none';
+  resetEmail=em;
+  document.getElementById('fGreet').textContent='Hi '+cap(account.firstName)+'! Choose a strong new password below.';
+  document.getElementById('fNewPwd').value='';
+  document.getElementById('fConfPwd').value='';
+  document.getElementById('fPwdError').style.display='none';
+  document.getElementById('fStrTxt').textContent='Enter a password';
+  document.getElementById('fStrTxt').style.color='var(--muted)';
+  ['fs1','fs2','fs3','fs4'].forEach(function(id){document.getElementById(id).style.background='var(--bg2)';});
+  document.getElementById('fStep1').style.display='none';
+  document.getElementById('fStep2').style.display='block';
+}
+function checkFStr(v){
+  var s=0;
+  if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  var c=['#c0392b','#e67e22','#f0ad4e','#27ae60'],lb=['Too weak','Weak','Good','Strong'];
+  for(var i=1;i<=4;i++) document.getElementById('fs'+i).style.background=i<=s?c[s-1]:'var(--bg2)';
+  var t=document.getElementById('fStrTxt');
+  t.textContent=s>0?lb[s-1]:'Enter a password';
+  t.style.color=s>0?c[s-1]:'var(--muted)';
+}
+function doResetPwd(){
+  var np=(document.getElementById('fNewPwd').value||'');
+  var cp=(document.getElementById('fConfPwd').value||'');
+  var err=document.getElementById('fPwdError');
+  if(np.length<8){err.style.display='block';err.textContent='Password must be at least 8 characters.';return;}
+  if(np!==cp){err.style.display='block';err.textContent='Passwords do not match. Please try again.';return;}
+  err.style.display='none';
+  registeredUsers[resetEmail].password=np;
+  showToast('Password updated successfully! Please sign in.');
+  toggleAuth('login');
+}
+
+// In-memory user store (persists for the session)
+var registeredUsers = {};
+
+function doLogin(){
+  var nm=(document.getElementById('lName').value||'').trim();
+  var em=(document.getElementById('lEmail').value||'').trim().toLowerCase();
+  var pw=(document.getElementById('lPwd').value||'');
+  if(!nm){showToast('Please enter your name');return;}
+  if(!em){showToast('Please enter your email');return;}
+  if(!pw){showToast('Please enter your password');return;}
+
+  var account = registeredUsers[em];
+  if(!account){
+    showToast('No account found. Please sign up first.');return;
+  }
+  if(account.password !== pw){
+    showToast('Incorrect password. Please try again.');return;
+  }
+
+  user={name:account.firstName,goal:account.goal||'Long-term wealth building'};
+  launchApp('Welcome back, '+cap(user.name)+'! 🎉');
+}
+
+function doRegister(){
+  var f=(document.getElementById('rFirst').value||'').trim();
+  var l=(document.getElementById('rLast').value||'').trim();
+  var e=(document.getElementById('rEmail').value||'').trim().toLowerCase();
+  var p=(document.getElementById('rPwd').value||'');
+  var ag=document.getElementById('rAgree').checked;
+  if(!f||!l){showToast('Please enter your full name');return;}
+  if(!e){showToast('Please enter your email address');return;}
+  if(p.length<8){showToast('Password must be at least 8 characters');return;}
+  if(!ag){showToast('Please agree to the Terms of Service');return;}
+  if(registeredUsers[e]){showToast('An account with this email already exists.');return;}
+
+  registeredUsers[e]={firstName:f,lastName:l,password:p,goal:document.getElementById('rGoal').value};
+  user={name:f,goal:document.getElementById('rGoal').value};
+  launchApp('Welcome to SmartInvest, '+cap(f)+'! 🚀');
+}
+
+function launchApp(msg){
+  document.getElementById('gate').classList.add('hide');
+  document.getElementById('app').style.display='block';
+  document.getElementById('navAv').textContent=cap(user.name).charAt(0);
+  document.getElementById('navNm').textContent=cap(user.name);
+  document.getElementById('chatWelcomeName').textContent=cap(user.name);
+  go('home');
+  personalizeApp();
+  showToast(msg);
+}
+
+// ============================================================
+// PERSONALIZATION BY INVESTMENT GOAL
+// ============================================================
+var GOAL_PROFILES = {
+  'Long-term wealth building': {
+    tag: 'Long-Term Wealth Building',
+    sub: 'Your portfolio is tailored for compounding growth over decades through diversified index funds and quality equities.',
+    analysisTab: 'fund',
+    riskFilter: 'low',
+    investOrder: ['S&P 500 Index Funds','US Treasury Bonds','REITs — Real Estate','Tech Growth ETFs','Emerging Markets','Crypto — BTC & ETH'],
+    allocation: [{n:'Index Funds (S&P 500)',p:50},{n:'International ETFs',p:22},{n:'Bonds & Fixed Income',p:18},{n:'Gold ETF',p:10}],
+    riskScore: 'Conservative',
+    riskNum: '38 / 100',
+    dashSub: 'Focused on long-term compounding'
+  },
+  'Retirement planning': {
+    tag: 'Retirement Planning',
+    sub: 'Your portfolio prioritises capital preservation and steady income to build a secure, stress-free retirement.',
+    analysisTab: 'fund',
+    riskFilter: 'low',
+    investOrder: ['US Treasury Bonds','S&P 500 Index Funds','REITs — Real Estate','Tech Growth ETFs','Emerging Markets','Crypto — BTC & ETH'],
+    allocation: [{n:'Bonds & Fixed Income',p:45},{n:'Index Funds (S&P 500)',p:30},{n:'REITs (Dividend)',p:15},{n:'Gold ETF',p:10}],
+    riskScore: 'Conservative',
+    riskNum: '28 / 100',
+    dashSub: 'Focused on capital preservation'
+  },
+  'Short-term trading': {
+    tag: 'Active Trading',
+    sub: 'Your dashboard highlights high-momentum opportunities and technical setups for short-to-medium term profits.',
+    analysisTab: 'tech',
+    riskFilter: 'high',
+    investOrder: ['Tech Growth ETFs','Emerging Markets','Crypto — BTC & ETH','REITs — Real Estate','S&P 500 Index Funds','US Treasury Bonds'],
+    allocation: [{n:'Tech & Growth ETFs',p:40},{n:'Emerging Markets',p:25},{n:'Crypto (BTC/ETH)',p:20},{n:'Cash Reserve',p:15}],
+    riskScore: 'Aggressive',
+    riskNum: '84 / 100',
+    dashSub: 'Focused on active trading'
+  },
+  'Passive income': {
+    tag: 'Passive Income',
+    sub: 'Your portfolio is built around high-yield dividend assets, REITs, and bonds that pay you every month.',
+    analysisTab: 'ratio',
+    riskFilter: 'med',
+    investOrder: ['REITs — Real Estate','US Treasury Bonds','S&P 500 Index Funds','Tech Growth ETFs','Emerging Markets','Crypto — BTC & ETH'],
+    allocation: [{n:'REITs (High Yield)',p:40},{n:'Dividend Stocks',p:30},{n:'Bonds & Fixed Income',p:20},{n:'Gold ETF',p:10}],
+    riskScore: 'Moderate',
+    riskNum: '46 / 100',
+    dashSub: 'Focused on dividend income'
+  },
+  'Just learning': {
+    tag: 'Learning Mode',
+    sub: 'You are on the right path! Explore all sections of SmartInvest to build your knowledge from the ground up.',
+    analysisTab: 'fund',
+    riskFilter: 'all',
+    investOrder: ['S&P 500 Index Funds','US Treasury Bonds','REITs — Real Estate','Tech Growth ETFs','Emerging Markets','Crypto — BTC & ETH'],
+    allocation: [{n:'Index Funds (Starter)',p:60},{n:'Bonds (Safety)',p:25},{n:'Gold ETF',p:10},{n:'Cash Reserve',p:5}],
+    riskScore: 'Cautious',
+    riskNum: '22 / 100',
+    dashSub: 'Learning & exploring'
+  }
+};
+
+function personalizeApp(){
+  var goal = (user && user.goal) ? user.goal : 'Long-term wealth building';
+  var p = GOAL_PROFILES[goal] || GOAL_PROFILES['Long-term wealth building'];
+
+  // ── Goal badge on all pages ──
+  var badge = '<span id="goalBadge" style="display:inline-flex;align-items:center;gap:6px;background:var(--glow);border:1px solid var(--bdr);padding:4px 11px;border-radius:20px;font-size:.68rem;font-weight:600;color:var(--gold);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px;">🎯 '+p.tag+'</span>';
+
+  // ── Invest page: reorder cards + set filter + inject badge ──
+  var grid = document.getElementById('investGrid');
+  if(grid){
+    var cards = Array.from(grid.children);
+    var ordered = [];
+    p.investOrder.forEach(function(name){
+      var found = cards.find(function(c){ return c.querySelector('h3') && c.querySelector('h3').textContent.trim()===name; });
+      if(found) ordered.push(found);
+    });
+    cards.forEach(function(c){ if(ordered.indexOf(c)===-1) ordered.push(c); });
+    ordered.forEach(function(c){ grid.appendChild(c); });
+    // Set recommended label on first card
+    ordered.forEach(function(c,i){ 
+      var old = c.querySelector('.goal-rec');
+      if(old) old.remove();
+      if(i===0){
+        var rec = document.createElement('div');
+        rec.className='goal-rec';
+        rec.style.cssText='font-size:.67rem;font-weight:700;color:var(--green);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;';
+        rec.textContent='⭐ Top Pick for Your Goal';
+        c.insertBefore(rec, c.firstChild);
+      }
+    });
+    // Apply risk filter
+    var riskF = document.getElementById('riskF');
+    if(riskF){ riskF.value = p.riskFilter; filterInvest(); }
+    // Inject badge
+    var investSec = document.querySelector('#p-invest .sec');
+    if(investSec){
+      var ob = investSec.querySelector('#goalBadge-invest');
+      if(!ob){
+        var b = document.createElement('div');
+        b.id='goalBadge-invest';
+        b.innerHTML = badge.replace('id="goalBadge"','id="goalBadge-invest-inner"');
+        investSec.insertBefore(b, investSec.firstChild);
+      }
+      // Update sub heading
+      var sub = investSec.querySelector('.ssub');
+      if(sub) sub.textContent = p.sub;
+    }
+  }
+
+  // ── Analysis page: switch to recommended tab + inject badge ──
+  switchTab(p.analysisTab);
+  var analysisSec = document.querySelector('#p-analysis .sec');
+  if(analysisSec){
+    var existB = analysisSec.querySelector('#goalBadge-analysis');
+    if(!existB){
+      var ab = document.createElement('div');
+      ab.id='goalBadge-analysis';
+      ab.innerHTML = badge.replace('id="goalBadge"','id="goalBadge-analysis-inner"');
+      analysisSec.insertBefore(ab, analysisSec.firstChild);
+    }
+    var asub = analysisSec.querySelector('.ssub');
+    if(asub) asub.textContent = 'Showing the analysis framework most relevant to your goal: '+p.tag+'.';
+  }
+
+  // ── Dashboard: update allocation + risk score + sub ──
+  var alloc = document.querySelector('#p-dash .acard');
+  if(alloc){
+    var allocRows = alloc.querySelectorAll('.ai-row');
+    p.allocation.forEach(function(item, i){
+      if(allocRows[i]){
+        allocRows[i].querySelector('.ai-n').textContent = item.n;
+        allocRows[i].querySelector('.ai-f').style.width = item.p+'%';
+        allocRows[i].querySelector('.ai-p').textContent = item.p+'%';
+      }
+    });
+    // Hide extra rows if allocation has fewer items
+    for(var i=p.allocation.length; i<allocRows.length; i++){
+      allocRows[i].style.display='none';
+    }
+  }
+  // Risk score card
+  var pcards = document.querySelectorAll('.pcard');
+  pcards.forEach(function(pc){
+    if(pc.querySelector('.plbl') && pc.querySelector('.plbl').textContent==='Risk Score'){
+      pc.querySelector('.pval').textContent = p.riskScore;
+      pc.querySelector('.pchi').textContent = 'Score: '+p.riskNum;
+    }
+  });
+  // Dashboard sub
+  var dashDate = document.getElementById('dashDate');
+  if(dashDate && dashDate.dataset.orig === undefined){
+    dashDate.dataset.orig = dashDate.textContent;
+  }
+  // Goal tag under dashboard name
+  var dashGoalTag = document.getElementById('dashGoalTag');
+  if(!dashGoalTag){
+    var dgt = document.createElement('p');
+    dgt.id = 'dashGoalTag';
+    dgt.style.cssText = 'font-size:.75rem;color:var(--gold);font-weight:600;margin-top:3px;';
+    dgt.textContent = '🎯 Goal: '+p.tag+' · '+p.dashSub;
+    var dashNameEl = document.getElementById('dashName');
+    if(dashNameEl && dashNameEl.parentNode){
+      dashNameEl.parentNode.appendChild(dgt);
+    }
+  } else {
+    dashGoalTag.textContent = '🎯 Goal: '+p.tag+' · '+p.dashSub;
+  }
+}
+
+function doLogout(){
+  user=null; chatStarted=false;
+  document.getElementById('gate').classList.remove('hide');
+  document.getElementById('app').style.display='none';
+  document.getElementById('chatMsgs').innerHTML='';
+  document.getElementById('chatMsgs').style.display='none';
+  document.getElementById('chatWelcome').style.display='block';
+  document.getElementById('lName').value='';
+  document.getElementById('lEmail').value='';
+  document.getElementById('lPwd').value='';
+  toggleAuth('login');
+  showToast('Signed out successfully');
+}
+
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):'';}
+
+function checkStr(v){
+  var s=0;
+  if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  var c=['#c0392b','#e67e22','#f0ad4e','#27ae60'],lb=['Too weak','Weak','Good','Strong'];
+  for(var i=1;i<=4;i++) document.getElementById('s'+i).style.background=i<=s?c[s-1]:'var(--bg2)';
+  var t=document.getElementById('strTxt');
+  t.textContent=s>0?lb[s-1]:'Enter a password';
+  t.style.color=s>0?c[s-1]:'var(--muted)';
+}
+
+// ============================================================
+// NAVIGATION
+// ============================================================
+function go(id){
+  document.querySelectorAll('#app .page').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('p-'+id).classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='markets') renderMkt();
+  if(id==='dash') renderDash();
+  if(id==='analysis') switchTab('fund');
+  if(id==='calc'){calcSIP();calcCI();calcROI();calcPS();}
+}
+
+// ============================================================
+// TICKER
+// ============================================================
+(function(){
+  var el=document.getElementById('tickerEl'),h='';
+  for(var r=0;r<2;r++){
+    for(var i=0;i<TICKERS.length;i+=3){
+      var u=TICKERS[i+2].charAt(0)==='+';
+      h+='<span class="ts">'+TICKERS[i]+'</span> '+TICKERS[i+1]+' <span class="'+(u?'tu':'td2')+'">'+TICKERS[i+2]+'</span>&nbsp;&nbsp;·&nbsp;&nbsp;';
+    }
+  }
+  el.innerHTML=h;
+})();
+
+// ============================================================
+// MARKETS
+// ============================================================
+function renderMkt(){
+  document.getElementById('mktBody').innerHTML=MKT.map(function(s){
+    var u=s.pct>0;
+    var sc=s.sig==='Strong Buy'?'#2e8a51':s.sig==='Buy'?'#5cb85c':s.sig==='Sell'?'#c0392b':'#8c8479';
+    return '<tr><td><span class="sym">'+s.sym+'</span></td>'
+      +'<td style="color:var(--muted);font-size:.82rem">'+s.name+'</td>'
+      +'<td style="font-weight:600">$'+s.price.toLocaleString()+'</td>'
+      +'<td class="'+(u?'up':'dn')+'">'+(u?'+':'')+s.chg+'</td>'
+      +'<td class="'+(u?'up':'dn')+'">'+(u?'↑':'↓')+Math.abs(s.pct)+'%</td>'
+      +'<td style="color:var(--muted);font-size:.82rem">'+s.vol+'</td>'
+      +'<td><span class="sbadge" style="color:'+sc+';background:'+sc+'1a">'+s.sig+'</span></td></tr>';
+  }).join('');
+  document.getElementById('secBars').innerHTML=SECTORS.map(function(s){
+    var c=s.u?'linear-gradient(90deg,#2e8a51,#5cb85c)':'linear-gradient(90deg,#c0392b,#e74c3c)';
+    var tc=s.u?'#2e8a51':'#c0392b';
+    return '<div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">'
+      +'<div style="width:120px;font-size:.82rem;font-weight:500;color:var(--mid)">'+s.n+'</div>'
+      +'<div style="flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;">'
+      +'<div style="height:100%;width:'+s.p+'%;background:'+c+';border-radius:3px;"></div></div>'
+      +'<div style="width:32px;font-size:.76rem;font-weight:600;text-align:right;color:'+tc+'">'+s.p+'%</div></div>';
+  }).join('');
+}
+
+// ============================================================
+// INVEST FILTER
+// ============================================================
+function filterInvest(){
+  var v=document.getElementById('riskF').value;
+  document.querySelectorAll('.ic').forEach(function(c){
+    c.style.display=(v==='all'||c.dataset.risk===v)?'':'none';
+  });
+}
+
+// ============================================================
+// ANALYSIS TABS
+// ============================================================
+function switchTab(t){
+  ['fund','tech','ratio','comp'].forEach(function(x){
+    document.getElementById('tb-'+x).classList.toggle('on',x===t);
+    document.getElementById('tc-'+x).classList.toggle('on',x===t);
+  });
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+// ============================================================
+// PORTFOLIO CHART
+// ============================================================
+var CHART_DATA={
+  '1M':{pts:[100,97,101,104,102,107,105,110,108,113,111,116,114,118,115,119,117,121,119,123,121,125,124,128,126,130],gain:'+$3,241',pct:'+7.2%',col:'#2e8a51'},
+  '3M':{pts:[40,52,47,62,56,70,63,78,71,85,80,93,87,99,95,111,105,119,113,127,121,137,131,145,141,150],gain:'+$9,840',pct:'+22.4%',col:'#b8963e'},
+  '1Y':{pts:[30,28,35,32,40,38,33,42,39,48,44,52,49,57,54,60,56,63,60,67,64,70,68,74,71,78,75,82,79,86,83,90,88,94,91,97,95,101,98,105,102,108,105,112,109,117,114,122,118,128],gain:'+$18,320',pct:'+61.1%',col:'#2e8a51'}
+};
+function renderChart(period){
+  ['1M','3M','1Y'].forEach(function(p){
+    var b=document.getElementById('cbtn-'+p);
+    if(!b)return;
+    if(p===period){b.style.background='var(--dark)';b.style.color='#fff';b.style.borderColor='var(--dark)';}
+    else{b.style.background='transparent';b.style.color='var(--gold)';b.style.borderColor='var(--gold)';}
+  });
+  var d=CHART_DATA[period];
+  var svg=document.getElementById('pchart');
+  if(!svg)return;
+  var pts=d.pts,W=800,H=140,P=14;
+  var mn=Math.min.apply(null,pts)-6,mx=Math.max.apply(null,pts)+4;
+  var X=function(i){return P+(i/(pts.length-1))*(W-2*P);};
+  var Y=function(v){return H-P-((v-mn)/(mx-mn))*(H-2*P);};
+  var poly=pts.map(function(v,i){return X(i)+','+Y(v);}).join(' ');
+  var area=X(0)+','+(H-P)+' '+poly+' '+X(pts.length-1)+','+(H-P);
+  svg.innerHTML='<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0%" stop-color="'+d.col+'" stop-opacity="0.2"/>'
+    +'<stop offset="100%" stop-color="'+d.col+'" stop-opacity="0"/>'
+    +'</linearGradient></defs>'
+    +'<polygon points="'+area+'" fill="url(#cg)"/>'
+    +'<polyline points="'+poly+'" fill="none" stroke="'+d.col+'" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<circle cx="'+X(pts.length-1)+'" cy="'+Y(pts[pts.length-1])+'" r="4.5" fill="'+d.col+'"/>';
+  // Update gain chip on portfolio card
+  var chips=document.querySelectorAll('.pchi');
+  chips.forEach(function(c){if(c.textContent.indexOf('today')>-1||c.textContent.indexOf('(')>-1){c.textContent='↑ '+d.gain+' ('+period+')';}});
+}
+
+function renderDash(){
+  if(user) document.getElementById('dashName').textContent=cap(user.name);
+  var h=new Date().getHours();
+  var g=h>=5&&h<12?'Good morning ☀️':h<17?'Good afternoon 🌤️':h<21?'Good evening 🌆':'Good night 🌙';
+  document.getElementById('dashGreet').textContent=g;
+  var now=new Date();
+  var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var months=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var mktOpen=h>=9&&h<16;
+  document.getElementById('dashDate').textContent=days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate()+', '+now.getFullYear()+' · Markets '+(mktOpen?'open 🟢':'closed 🔴');
+  // Chart
+  renderChart('3M');
+  // Watchlist
+  document.getElementById('watchlist').innerHTML=WL.map(function(w){
+    return '<div class="ai-row"><span class="ai-n" style="font-family:\'Playfair Display\',serif">'+w.s+'</span>'
+      +'<span style="font-size:.82rem;color:var(--mid)">'+w.p+'</span>'
+      +'<span style="font-size:.76rem;font-weight:600;margin-left:10px;color:'+(w.u?'#2e8a51':'var(--red)')+'">'+w.c+'</span></div>';
+  }).join('');
+}
+
+// ============================================================
+// CALCULATORS
+// ============================================================
+function fmt(n){
+  var a=Math.abs(n);
+  if(a>=10000000) return '₹'+(n/10000000).toFixed(2)+' Cr';
+  if(a>=100000) return '₹'+(n/100000).toFixed(2)+' L';
+  return '₹'+Math.round(a).toLocaleString('en-IN');
+}
+function calcSIP(){
+  var amt=+(document.getElementById('sipAmt').value)||0;
+  var r=(+(document.getElementById('sipRate').value)||0)/100/12;
+  var n=(+(document.getElementById('sipYrs').value)||0)*12;
+  var tot=r>0?amt*((Math.pow(1+r,n)-1)/r)*(1+r):amt*n;
+  var inv=amt*n;
+  document.getElementById('sipInv').textContent=fmt(inv);
+  document.getElementById('sipRet').textContent=fmt(tot-inv);
+  document.getElementById('sipTot').textContent=fmt(tot);
+}
+function calcCI(){
+  var p=+(document.getElementById('ciP').value)||0;
+  var r=(+(document.getElementById('ciR').value)||0)/100;
+  var y=+(document.getElementById('ciY').value)||0;
+  var tot=p*Math.pow(1+r,y);
+  document.getElementById('ciPV').textContent=fmt(p);
+  document.getElementById('ciI').textContent=fmt(tot-p);
+  document.getElementById('ciT').textContent=fmt(tot);
+}
+function calcROI(){
+  var b=+(document.getElementById('roiB').value)||0;
+  var s=+(document.getElementById('roiS').value)||0;
+  var u=+(document.getElementById('roiU').value)||0;
+  var inv=b*u, pl=(s-b)*u, roi=b>0?(s-b)/b*100:0;
+  document.getElementById('roiInv').textContent=fmt(inv);
+  var pe=document.getElementById('roiPL');
+  pe.textContent=(pl>=0?'+':'-')+fmt(pl);
+  pe.style.color=pl>=0?'var(--green)':'var(--red)';
+  var re=document.getElementById('roiPct');
+  re.textContent=(roi>=0?'+':'')+roi.toFixed(1)+'%';
+  re.style.color=roi>=0?'var(--gold)':'var(--red)';
+}
+function calcPS(){
+  var port=+(document.getElementById('psPort').value)||0;
+  var rp=+(document.getElementById('psRisk').value)||0;
+  var sl=+(document.getElementById('psSL').value)||0;
+  var mr=port*rp/100, sz=sl>0?mr/(sl/100):0, pct=port>0?sz/port*100:0;
+  document.getElementById('psMR').textContent=fmt(mr);
+  document.getElementById('psSize').textContent=fmt(sz);
+  document.getElementById('psPct').textContent=pct.toFixed(1)+'%';
+}
+
+// ============================================================
+// QUIZ
+// ============================================================
+function startQuiz(){
+  qIdx=0; qScore=0; qDone=false;
+  document.getElementById('qStart').style.display='none';
+  document.getElementById('qResult').style.display='none';
+  document.getElementById('qQuestion').style.display='block';
+  document.getElementById('qScore').textContent='0';
+  showQ();
+}
+function showQ(){
+  qDone=false;
+  var q=QUIZ[qIdx];
+  document.getElementById('qNum').textContent=qIdx+1;
+  document.getElementById('qProg').style.width=((qIdx+1)/10*100)+'%';
+  document.getElementById('qCat').textContent=q.c;
+  document.getElementById('qTxt').textContent=q.q;
+  document.getElementById('qFB').style.display='none';
+  document.getElementById('qNext').style.display='none';
+  document.getElementById('qOpts').innerHTML=q.o.map(function(o,i){
+    return '<button class="qopt" id="qo'+i+'" onclick="ansQ('+i+')">'
+      +'<strong style="color:var(--gold);margin-right:8px;">'+String.fromCharCode(65+i)+'.</strong>'+o+'</button>';
+  }).join('');
+}
+function ansQ(i){
+  if(qDone) return; qDone=true;
+  var q=QUIZ[qIdx], ok=i===q.a;
+  if(ok) qScore++;
+  document.getElementById('qScore').textContent=qScore;
+  for(var j=0;j<q.o.length;j++){
+    var b=document.getElementById('qo'+j); b.disabled=true;
+    if(j===q.a) b.classList.add('correct');
+    else if(j===i&&!ok) b.classList.add('wrong');
+  }
+  var fb=document.getElementById('qFB');
+  fb.style.display='block';
+  fb.style.background=ok?'rgba(45,98,69,.08)':'rgba(192,57,43,.06)';
+  fb.style.borderLeftColor=ok?'var(--green)':'#c0392b';
+  fb.innerHTML='<strong style="color:'+(ok?'var(--green)':'#c0392b')+'">'+(ok?'✅ Correct!':'❌ Not quite.')+'</strong> '+q.e;
+  var nb=document.getElementById('qNext');
+  nb.style.display='inline-flex';
+  nb.textContent=qIdx<9?'Next Question →':'See My Results';
+}
+function nextQ(){
+  qIdx++;
+  if(qIdx>=10) showResult(); else showQ();
+}
+function showResult(){
+  document.getElementById('qQuestion').style.display='none';
+  document.getElementById('qResult').style.display='block';
+  document.getElementById('rScore').textContent=qScore+'/10';
+  var T=[
+    {m:9,e:'🏆',l:'Expert Investor',t:'Outstanding! You have exceptional financial knowledge and are ready to tackle advanced investment strategies.'},
+    {m:7,e:'🌟',l:'Advanced Learner',t:'Great work! You have strong financial fundamentals. Keep building on this solid foundation.'},
+    {m:5,e:'📈',l:'Growing Investor',t:'Good effort! You have the basics down. Visit the Analysis section to deepen your understanding.'},
+    {m:0,e:'📚',l:'Beginner — Keep Learning!',t:'Every expert started exactly where you are! Explore our guides, then come back to beat your score.'}
+  ];
+  var tier=T.find(function(t){return qScore>=t.m;})||T[T.length-1];
+  document.getElementById('rEmoji').textContent=tier.e;
+  document.getElementById('rLabel').textContent=tier.l;
+  document.getElementById('rMsg').textContent=tier.t;
+}
+
+// ============================================================
+// AI CHAT
+// ============================================================
+function addBotMsg(text){
+  var ms=document.getElementById('chatMsgs');
+  var uid=user?cap(user.name).charAt(0):'U';
+  // typing
+  var t=document.createElement('div');
+  t.className='cmsg bot'; t.id='typing_indicator';
+  t.innerHTML='<div class="cico bot">🤖</div><div class="typing-ind"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>';
+  ms.appendChild(t);
+  scrollChat();
+  setTimeout(function(){
+    var ti=document.getElementById('typing_indicator');
+    if(ti) ti.remove();
+    var d=document.createElement('div');
+    d.className='cmsg bot';
+    d.innerHTML='<div class="cico bot">🤖</div><div class="cbubl">'+text.replace(/\n/g,'<br>')+'</div>';
+    ms.appendChild(d);
+    scrollChat();
+  },900);
+}
+
+function addUserMsg(text){
+  var ms=document.getElementById('chatMsgs');
+  var uid=user?cap(user.name).charAt(0):'U';
+  var d=document.createElement('div');
+  d.className='cmsg user';
+  d.innerHTML='<div class="cbubl">'+text+'</div><div class="cico usr">'+uid+'</div>';
+  ms.appendChild(d);
+  scrollChat();
+}
+
+function scrollChat(){
+  var sc=document.getElementById('chatScroll');
+  setTimeout(function(){sc.scrollTop=sc.scrollHeight;},50);
+}
+
+function showMessages(){
+  if(!chatStarted){
+    chatStarted=true;
+    document.getElementById('chatWelcome').style.display='none';
+    document.getElementById('chatMsgs').style.display='flex';
+  }
+}
+
+function sendChatMsg(){
+  var inp=document.getElementById('chatInp');
+  var txt=(inp.value||'').trim();
+  if(!txt) return;
+  inp.value='';
+  showMessages();
+  addUserMsg(txt);
+  addBotMsg(getAIReply(txt));
+}
+
+function topicAsk(q){
+  showMessages();
+  addUserMsg(q);
+  addBotMsg(getAIReply(q));
+}
+
+function clearChat(){
+  chatStarted=false;
+  document.getElementById('chatMsgs').innerHTML='';
+  document.getElementById('chatMsgs').style.display='none';
+  document.getElementById('chatWelcome').style.display='block';
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(function(){t.classList.remove('show');},3200);
+}
+
+// Init calculators on load
+calcSIP(); calcCI(); calcROI(); calcPS();
+</script>
+</body>
+</html>
